@@ -11,6 +11,7 @@ import { Plus, RefreshCw, AlertCircle } from 'lucide-react';
 import { StudyTopic } from '@/lib/types';
 import TopicCardSkeleton from '@/components/TopicCardSkeleton';
 import TopicCard from '@/components/TopicCard';
+import { ThemeToggle } from '@/components/theme-toggle';
 
 
 const colorOptions = [
@@ -148,15 +149,26 @@ export default function Home() {
   const careerGrowthTopics = topics.filter(topic => topic.category === 'career-growth');
 
   if (loading) {
-    return (
-      <div className="min-h-screen w-full bg-[#0f0f0f] relative text-white">
-        {/* Diagonal Grid with Red/Blue Glow */}
+  return (
+      <div className="min-h-screen w-full bg-background relative text-foreground">
+        {/* Diagonal Grid with Orange Glow - Dark Mode */}
         <div
-          className="absolute inset-0 z-0 pointer-events-none"
+          className="absolute inset-0 z-0 pointer-events-none dark:block hidden"
           style={{
             backgroundImage: `
        repeating-linear-gradient(45deg, rgba(255, 140, 0, 0.12) 0, rgba(255, 140, 0, 0.12) 1px, transparent 1px, transparent 22px),
             repeating-linear-gradient(-45deg, rgba(255, 69, 0, 0.08) 0, rgba(255, 69, 0, 0.08) 1px, transparent 1px, transparent 22px)
+            `,
+            backgroundSize: "44px 44px",
+          }}
+        />
+        {/* Light Mode Grid */}
+        <div
+          className="absolute inset-0 z-0 pointer-events-none dark:hidden block"
+          style={{
+            backgroundImage: `
+       repeating-linear-gradient(45deg, rgba(255, 140, 0, 0.06) 0, rgba(255, 140, 0, 0.06) 1px, transparent 1px, transparent 22px),
+            repeating-linear-gradient(-45deg, rgba(255, 69, 0, 0.04) 0, rgba(255, 69, 0, 0.04) 1px, transparent 1px, transparent 22px)
             `,
             backgroundSize: "44px 44px",
           }}
@@ -166,16 +178,17 @@ export default function Home() {
           <div className="mb-8">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-4xl font-bold text-white mb-2">
+                <h1 className="text-4xl font-bold text-foreground mb-2">
                   Study Dashboard
                 </h1>
-                <p className="text-gray-300">
+                <p className="text-muted-foreground">
                   Organize your interview prep and career growth resources in one place
                 </p>
               </div>
               <div className="flex items-center gap-2">
+                <ThemeToggle />
                 <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-orange-500"></div>
-                <span className="text-sm text-gray-300">Loading...</span>
+                <span className="text-sm text-muted-foreground">Loading...</span>
               </div>
             </div>
           </div>
@@ -184,10 +197,10 @@ export default function Home() {
             {/* Interview Prep Section */}
             <section>
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-semibold text-white">
+                <h2 className="text-2xl font-semibold text-foreground">
                   Interview Prep
                 </h2>
-                <div className="h-9 w-24 bg-white/10 rounded animate-pulse"></div>
+                <div className="h-9 w-24 bg-muted rounded animate-pulse"></div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                 {Array.from({ length: 4 }).map((_, index) => (
@@ -199,10 +212,10 @@ export default function Home() {
             {/* Career Growth Section */}
             <section>
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-semibold text-white">
+                <h2 className="text-2xl font-semibold text-foreground">
                   Job & SDE Career Growth
                 </h2>
-                <div className="h-9 w-24 bg-white/10 rounded animate-pulse"></div>
+                <div className="h-9 w-24 bg-muted rounded animate-pulse"></div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                 {Array.from({ length: 2 }).map((_, index) => (
@@ -217,10 +230,10 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen w-full bg-[#0f0f0f] relative text-white">
-      {/* Diagonal Grid with Red/Blue Glow */}
+    <div className="min-h-screen w-full bg-background relative text-foreground">
+      {/* Diagonal Grid with Orange Glow - Dark Mode */}
       <div
-        className="absolute inset-0 z-0 pointer-events-none"
+        className="absolute inset-0 z-0 pointer-events-none dark:block hidden"
         style={{
           backgroundImage: `
      repeating-linear-gradient(45deg, rgba(255, 140, 0, 0.12) 0, rgba(255, 140, 0, 0.12) 1px, transparent 1px, transparent 22px),
@@ -229,44 +242,56 @@ export default function Home() {
           backgroundSize: "44px 44px",
         }}
       />
-      <div className="container mx-auto px-4 py-8 relative z-10">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-4xl font-bold text-white mb-2">
-                Study Dashboard
-              </h1>
-              <p className="text-gray-300">
-                Organize your interview prep and career growth resources in one place
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
-              {error && (
-                <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400">
-                  <AlertCircle className="h-4 w-4" />
-                  <span className="text-sm">{error}</span>
-                </div>
-              )}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={refreshData}
-                disabled={loading}
-                className="gap-2"
-              >
-                <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-                Refresh
-              </Button>
+      {/* Light Mode Grid */}
+      <div
+        className="absolute inset-0 z-0 pointer-events-none dark:hidden block"
+        style={{
+          backgroundImage: `
+     repeating-linear-gradient(45deg, rgba(255, 140, 0, 0.06) 0, rgba(255, 140, 0, 0.06) 1px, transparent 1px, transparent 22px),
+          repeating-linear-gradient(-45deg, rgba(255, 69, 0, 0.04) 0, rgba(255, 69, 0, 0.04) 1px, transparent 1px, transparent 22px)
+          `,
+          backgroundSize: "44px 44px",
+        }}
+      />
+        <div className="container mx-auto px-4 py-8 relative z-10">
+          {/* Header */}
+          <div className="mb-8">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-4xl font-bold text-foreground mb-2">
+                  Study Dashboard
+                </h1>
+                <p className="text-muted-foreground">
+                  Organize your interview prep and career growth resources in one place
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <ThemeToggle />
+                {error && (
+                  <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400">
+                    <AlertCircle className="h-4 w-4" />
+                    <span className="text-sm">{error}</span>
+                  </div>
+                )}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={refreshData}
+                  disabled={loading}
+                  className="gap-2"
+                >
+                  <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+                  Refresh
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
 
         <div className="space-y-8">
             {/* Interview Prep Section */}
             <section>
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-semibold text-white">
+                <h2 className="text-2xl font-semibold text-foreground">
                   Interview Prep
                 </h2>
                 <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
@@ -297,7 +322,7 @@ export default function Home() {
             {/* Career Growth Section */}
             <section>
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-semibold text-white">
+                <h2 className="text-2xl font-semibold text-foreground">
                   Job & SDE Career Growth
                 </h2>
                 <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
@@ -329,42 +354,42 @@ export default function Home() {
 
       {/* Create Topic Dialog */}
       <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-        <DialogContent className="max-w-2xl bg-black/95 border border-white/20 backdrop-blur-md">
+        <DialogContent className="max-w-2xl bg-background border border-border backdrop-blur-md">
           <DialogHeader>
-            <DialogTitle className="text-white text-xl">Create New Topic</DialogTitle>
+            <DialogTitle className="text-foreground text-xl">Create New Topic</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label className="text-sm text-gray-300 mb-2 block">Title</Label>
+              <Label className="text-sm text-muted-foreground mb-2 block">Title</Label>
               <Input
                 value={newTopic.title}
                 onChange={(e) => setNewTopic({...newTopic, title: e.target.value})}
-                className="bg-black/40 border-white/20 text-white"
+                className="bg-background border-border text-foreground"
                 placeholder="Topic title"
               />
             </div>
             
             <div>
-              <Label className="text-sm text-gray-300 mb-2 block">Description</Label>
+              <Label className="text-sm text-muted-foreground mb-2 block">Description</Label>
               <Textarea
                 value={newTopic.description}
                 onChange={(e) => setNewTopic({...newTopic, description: e.target.value})}
-                className="bg-black/40 border-white/20 text-gray-300 resize-none min-h-[80px]"
+                className="bg-background border-border text-foreground resize-none min-h-[80px]"
                 placeholder="Topic description"
               />
             </div>
             
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label className="text-sm text-gray-300 mb-2 block">Icon</Label>
+                <Label className="text-sm text-muted-foreground mb-2 block">Icon</Label>
                 <Select
                   value={newTopic.icon}
                   onValueChange={(value: 'Code' | 'Brain' | 'BookOpen' | 'Users' | 'Target' | 'Lightbulb') => setNewTopic({...newTopic, icon: value})}
                 >
-                  <SelectTrigger className="bg-black/40 border-white/20 text-white">
+                  <SelectTrigger className="bg-background border-border text-foreground">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-black/95 border border-white/20">
+                  <SelectContent className="bg-background border-border">
                     <SelectItem value="Code">Code</SelectItem>
                     <SelectItem value="Brain">Brain</SelectItem>
                     <SelectItem value="BookOpen">Book</SelectItem>
@@ -376,15 +401,15 @@ export default function Home() {
               </div>
               
               <div>
-                <Label className="text-sm text-gray-300 mb-2 block">Color</Label>
+                <Label className="text-sm text-muted-foreground mb-2 block">Color</Label>
                 <Select
                   value={newTopic.color}
                   onValueChange={(value) => setNewTopic({...newTopic, color: value})}
                 >
-                  <SelectTrigger className="bg-black/40 border-white/20 text-white">
+                  <SelectTrigger className="bg-background border-border text-foreground">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-black/95 border border-white/20">
+                  <SelectContent className="bg-background border-border">
                     {colorOptions.map((color) => (
                       <SelectItem key={color.value} value={color.value}>
                         <div className="flex items-center gap-2">
@@ -399,15 +424,15 @@ export default function Home() {
             </div>
             
             <div>
-              <Label className="text-sm text-gray-300 mb-2 block">Category</Label>
+              <Label className="text-sm text-muted-foreground mb-2 block">Category</Label>
               <Select
                 value={newTopic.category}
                 onValueChange={(value: 'interview-prep' | 'career-growth') => setNewTopic({...newTopic, category: value})}
               >
-                <SelectTrigger className="bg-black/40 border-white/20 text-white">
+                <SelectTrigger className="bg-background border-border text-foreground">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-black/95 border border-white/20">
+                <SelectContent className="bg-background border-border">
                   <SelectItem value="interview-prep">Interview Prep</SelectItem>
                   <SelectItem value="career-growth">Career Growth</SelectItem>
                 </SelectContent>
@@ -418,13 +443,13 @@ export default function Home() {
               <Button
                 variant="outline"
                 onClick={() => setIsCreateDialogOpen(false)}
-                className="border-white/20 text-white hover:bg-white/10"
+                className="border-border text-foreground hover:bg-muted"
               >
                 Cancel
               </Button>
               <Button
                 onClick={handleCreateTopic}
-                className="bg-orange-500 hover:bg-orange-600"
+                className="bg-orange-500 hover:bg-orange-600 text-white"
               >
                 Create Topic
               </Button>

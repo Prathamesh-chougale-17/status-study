@@ -14,6 +14,7 @@ import { ArrowLeft, Plus, BookOpen, RefreshCw } from 'lucide-react';
 import { StudyTopic, StudyResource } from '@/lib/types';
 import ResourceCard from '@/components/ResourceCard';
 import ResourceCardSkeleton from '@/components/ResourceCardSkeleton';
+import { ThemeToggle } from '@/components/theme-toggle';
 
 const iconMap = {
   Code: '💻',
@@ -165,14 +166,25 @@ export default function TopicPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen w-full bg-[#0f0f0f] relative text-white">
-        {/* Diagonal Grid with Red/Blue Glow */}
+      <div className="min-h-screen w-full bg-background relative text-foreground">
+        {/* Diagonal Grid with Orange Glow - Dark Mode */}
         <div
-          className="absolute inset-0 z-0 pointer-events-none"
+          className="absolute inset-0 z-0 pointer-events-none dark:block hidden"
           style={{
             backgroundImage: `
        repeating-linear-gradient(45deg, rgba(255, 140, 0, 0.12) 0, rgba(255, 140, 0, 0.12) 1px, transparent 1px, transparent 22px),
             repeating-linear-gradient(-45deg, rgba(255, 69, 0, 0.08) 0, rgba(255, 69, 0, 0.08) 1px, transparent 1px, transparent 22px)
+            `,
+            backgroundSize: "44px 44px",
+          }}
+        />
+        {/* Light Mode Grid */}
+        <div
+          className="absolute inset-0 z-0 pointer-events-none dark:hidden block"
+          style={{
+            backgroundImage: `
+       repeating-linear-gradient(45deg, rgba(255, 140, 0, 0.06) 0, rgba(255, 140, 0, 0.06) 1px, transparent 1px, transparent 22px),
+            repeating-linear-gradient(-45deg, rgba(255, 69, 0, 0.04) 0, rgba(255, 69, 0, 0.04) 1px, transparent 1px, transparent 22px)
             `,
             backgroundSize: "44px 44px",
           }}
@@ -213,9 +225,9 @@ export default function TopicPage() {
 
   if (!topic) {
     return (
-      <div className="min-h-screen w-full bg-[#0f0f0f] flex items-center justify-center">
+      <div className="min-h-screen w-full bg-background flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-white mb-4">
+          <h1 className="text-2xl font-bold text-foreground mb-4">
             Topic not found
           </h1>
           <Button onClick={() => router.push('/')}>
@@ -229,14 +241,25 @@ export default function TopicPage() {
 
 
   return (
-    <div className="min-h-screen w-full bg-[#0f0f0f] relative text-white">
-      {/* Diagonal Grid with Red/Blue Glow */}
+    <div className="min-h-screen w-full bg-background relative text-foreground">
+      {/* Diagonal Grid with Orange Glow - Dark Mode */}
       <div
-        className="absolute inset-0 z-0 pointer-events-none"
+        className="absolute inset-0 z-0 pointer-events-none dark:block hidden"
         style={{
           backgroundImage: `
      repeating-linear-gradient(45deg, rgba(255, 140, 0, 0.12) 0, rgba(255, 140, 0, 0.12) 1px, transparent 1px, transparent 22px),
           repeating-linear-gradient(-45deg, rgba(255, 69, 0, 0.08) 0, rgba(255, 69, 0, 0.08) 1px, transparent 1px, transparent 22px)
+          `,
+          backgroundSize: "44px 44px",
+        }}
+      />
+      {/* Light Mode Grid */}
+      <div
+        className="absolute inset-0 z-0 pointer-events-none dark:hidden block"
+        style={{
+          backgroundImage: `
+     repeating-linear-gradient(45deg, rgba(255, 140, 0, 0.06) 0, rgba(255, 140, 0, 0.06) 1px, transparent 1px, transparent 22px),
+          repeating-linear-gradient(-45deg, rgba(255, 69, 0, 0.04) 0, rgba(255, 69, 0, 0.04) 1px, transparent 1px, transparent 22px)
           `,
           backgroundSize: "44px 44px",
         }}
@@ -252,16 +275,19 @@ export default function TopicPage() {
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Dashboard
             </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={refreshTopic}
-              disabled={loading}
-              className="gap-2"
-            >
-              <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-              Refresh
-            </Button>
+            <div className="flex items-center gap-2">
+              <ThemeToggle />
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={refreshTopic}
+                disabled={loading}
+                className="gap-2"
+              >
+                <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+                Refresh
+              </Button>
+            </div>
           </div>
           
           <div className="flex items-center gap-4">
@@ -269,10 +295,10 @@ export default function TopicPage() {
               {iconMap[topic.icon as keyof typeof iconMap] || '📚'}
             </div>
             <div>
-              <h1 className="text-4xl font-bold text-white">
+              <h1 className="text-4xl font-bold text-foreground">
                 {topic.title}
               </h1>
-              <p className="text-gray-300 mt-2">
+              <p className="text-muted-foreground mt-2">
                 {topic.description}
               </p>
             </div>
@@ -281,7 +307,7 @@ export default function TopicPage() {
 
         <div>
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-semibold text-white">
+              <h2 className="text-2xl font-semibold text-foreground">
                 Resources ({topic.resources.length})
               </h2>
               
@@ -402,7 +428,7 @@ export default function TopicPage() {
                 <CardContent className="text-center py-12">
                   <div className="text-gray-400">
                     <BookOpen className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                    <h3 className="text-lg font-medium mb-2 text-white">No resources yet</h3>
+                    <h3 className="text-lg font-medium mb-2 text-foreground">No resources yet</h3>
                     <p className="text-sm">Add your first resource to get started with this topic.</p>
                   </div>
                 </CardContent>

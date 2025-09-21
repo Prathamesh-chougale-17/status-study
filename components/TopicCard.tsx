@@ -86,14 +86,14 @@ export default function TopicCard({ topic, onTopicUpdate, onTopicDelete }: Topic
   
   return (
     <>
-      <Card className="h-full bg-black/40 backdrop-blur-sm border border-white/10 hover:border-white/20 hover:shadow-2xl hover:shadow-orange-500/10 transition-all duration-300 group">
+      <Card className="h-full bg-card/50 backdrop-blur-sm border border-border hover:border-orange-500/30 hover:shadow-2xl hover:shadow-orange-500/10 transition-all duration-300 group">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <div className={`p-3 rounded-xl ${topic.color} text-white shadow-lg group-hover:scale-110 transition-transform duration-300`}>
               <IconComponent className="h-6 w-6" />
             </div>
             <div className="flex items-center gap-2">
-              <Badge variant="secondary" className="text-xs bg-white/10 text-white border-white/20">
+              <Badge variant="secondary" className="text-xs bg-muted text-muted-foreground border-border">
                 {topic.resources.length} resources
               </Badge>
               <div className="flex gap-1">
@@ -103,9 +103,9 @@ export default function TopicCard({ topic, onTopicUpdate, onTopicDelete }: Topic
                       size="sm"
                       variant="ghost"
                       onClick={handleOpenDialog}
-                      className="h-6 w-6 p-0 hover:bg-white/10"
+                      className="h-6 w-6 p-0 hover:bg-muted"
                     >
-                      <Edit2 className="h-3 w-3 text-orange-400" />
+                      <Edit2 className="h-3 w-3 text-orange-500" />
                     </Button>
                   </DialogTrigger>
                 </Dialog>
@@ -114,9 +114,9 @@ export default function TopicCard({ topic, onTopicUpdate, onTopicDelete }: Topic
                     size="sm"
                     variant="ghost"
                     onClick={handleDeleteTopic}
-                    className="h-6 w-6 p-0 hover:bg-red-500/20"
+                    className="h-6 w-6 p-0 hover:bg-destructive/20"
                   >
-                    <Trash2 className="h-3 w-3 text-red-400" />
+                    <Trash2 className="h-3 w-3 text-destructive" />
                   </Button>
                 )}
               </div>
@@ -124,10 +124,10 @@ export default function TopicCard({ topic, onTopicUpdate, onTopicDelete }: Topic
           </div>
           <Link href={`/topic/${topic._id}`}>
             <div className="cursor-pointer">
-              <CardTitle className="text-lg text-white group-hover:text-orange-400 transition-colors">
+              <CardTitle className="text-lg text-foreground group-hover:text-orange-500 transition-colors">
                 {topic.title}
               </CardTitle>
-              <CardDescription className="text-sm text-gray-300">
+              <CardDescription className="text-sm text-muted-foreground">
                 {topic.description}
               </CardDescription>
             </div>
@@ -135,7 +135,7 @@ export default function TopicCard({ topic, onTopicUpdate, onTopicDelete }: Topic
         </CardHeader>
         <CardContent>
           <Link href={`/topic/${topic._id}`}>
-            <div className="text-sm text-gray-400 cursor-pointer">
+            <div className="text-sm text-muted-foreground cursor-pointer">
               {topic.resources.length} resources available
             </div>
           </Link>
@@ -143,42 +143,42 @@ export default function TopicCard({ topic, onTopicUpdate, onTopicDelete }: Topic
       </Card>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-2xl bg-black/95 border border-white/20 backdrop-blur-md">
+        <DialogContent className="max-w-2xl bg-background border border-border backdrop-blur-md">
           <DialogHeader>
-            <DialogTitle className="text-white text-xl">Edit Topic</DialogTitle>
+            <DialogTitle className="text-foreground text-xl">Edit Topic</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label className="text-sm text-gray-300 mb-2 block">Title</Label>
+              <Label className="text-sm text-muted-foreground mb-2 block">Title</Label>
               <Input
                 value={editedTopic.title}
                 onChange={(e) => setEditedTopic({...editedTopic, title: e.target.value})}
-                className="bg-black/40 border-white/20 text-white"
+                className="bg-background border-border text-foreground"
                 placeholder="Topic title"
               />
             </div>
             
             <div>
-              <Label className="text-sm text-gray-300 mb-2 block">Description</Label>
+              <Label className="text-sm text-muted-foreground mb-2 block">Description</Label>
               <Textarea
                 value={editedTopic.description}
                 onChange={(e) => setEditedTopic({...editedTopic, description: e.target.value})}
-                className="bg-black/40 border-white/20 text-gray-300 resize-none min-h-[80px]"
+                className="bg-background border-border text-foreground resize-none min-h-[80px]"
                 placeholder="Topic description"
               />
             </div>
             
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label className="text-sm text-gray-300 mb-2 block">Icon</Label>
+                <Label className="text-sm text-muted-foreground mb-2 block">Icon</Label>
                 <Select
                   value={editedTopic.icon}
                   onValueChange={(value: 'Code' | 'Brain' | 'BookOpen' | 'Users' | 'Target' | 'Lightbulb') => setEditedTopic({...editedTopic, icon: value})}
                 >
-                  <SelectTrigger className="bg-black/40 border-white/20 text-white">
+                  <SelectTrigger className="bg-background border-border text-foreground">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-black/95 border border-white/20">
+                  <SelectContent className="bg-background border-border">
                     <SelectItem value="Code">Code</SelectItem>
                     <SelectItem value="Brain">Brain</SelectItem>
                     <SelectItem value="BookOpen">Book</SelectItem>
@@ -190,15 +190,15 @@ export default function TopicCard({ topic, onTopicUpdate, onTopicDelete }: Topic
               </div>
               
               <div>
-                <Label className="text-sm text-gray-300 mb-2 block">Color</Label>
+                <Label className="text-sm text-muted-foreground mb-2 block">Color</Label>
                 <Select
                   value={editedTopic.color}
                   onValueChange={(value) => setEditedTopic({...editedTopic, color: value})}
                 >
-                  <SelectTrigger className="bg-black/40 border-white/20 text-white">
+                  <SelectTrigger className="bg-background border-border text-foreground">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-black/95 border border-white/20">
+                  <SelectContent className="bg-background border-border">
                     {colorOptions.map((color) => (
                       <SelectItem key={color.value} value={color.value}>
                         <div className="flex items-center gap-2">
@@ -213,15 +213,15 @@ export default function TopicCard({ topic, onTopicUpdate, onTopicDelete }: Topic
             </div>
             
             <div>
-              <Label className="text-sm text-gray-300 mb-2 block">Category</Label>
+              <Label className="text-sm text-muted-foreground mb-2 block">Category</Label>
               <Select
                 value={editedTopic.category}
                 onValueChange={(value: 'interview-prep' | 'career-growth') => setEditedTopic({...editedTopic, category: value})}
               >
-                <SelectTrigger className="bg-black/40 border-white/20 text-white">
+                <SelectTrigger className="bg-background border-border text-foreground">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-black/95 border border-white/20">
+                <SelectContent className="bg-background border-border">
                   <SelectItem value="interview-prep">Interview Prep</SelectItem>
                   <SelectItem value="career-growth">Career Growth</SelectItem>
                 </SelectContent>
@@ -232,13 +232,13 @@ export default function TopicCard({ topic, onTopicUpdate, onTopicDelete }: Topic
               <Button
                 variant="outline"
                 onClick={handleCancelEdit}
-                className="border-white/20 text-white hover:bg-white/10"
+                className="border-border text-foreground hover:bg-muted"
               >
                 Cancel
               </Button>
               <Button
                 onClick={handleSaveTopic}
-                className="bg-orange-500 hover:bg-orange-600"
+                className="bg-orange-500 hover:bg-orange-600 text-white"
               >
                 Save Changes
               </Button>
