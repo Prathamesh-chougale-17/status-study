@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -68,7 +69,7 @@ export default function TopicCard({ topic, onTopicUpdate, onTopicDelete }: Topic
   };
 
   const handleDeleteTopic = () => {
-    if (onTopicDelete && confirm('Are you sure you want to delete this topic?')) {
+    if (onTopicDelete) {
       onTopicDelete(topic._id!);
     }
   };
@@ -110,14 +111,36 @@ export default function TopicCard({ topic, onTopicUpdate, onTopicDelete }: Topic
                   </DialogTrigger>
                 </Dialog>
                 {onTopicDelete && (
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={handleDeleteTopic}
-                    className="h-6 w-6 p-0 hover:bg-destructive/20"
-                  >
-                    <Trash2 className="h-3 w-3 text-destructive" />
-                  </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-6 w-6 p-0 hover:bg-destructive/20"
+                      >
+                        <Trash2 className="h-3 w-3 text-destructive" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent className="bg-background border border-border">
+                      <AlertDialogHeader>
+                        <AlertDialogTitle className="text-foreground">Delete Topic</AlertDialogTitle>
+                        <AlertDialogDescription className="text-muted-foreground">
+                          Are you sure you want to delete "{topic.title}"? This action cannot be undone and will permanently remove the topic and all its resources.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel className="border-border text-foreground hover:bg-muted">
+                          Cancel
+                        </AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={handleDeleteTopic}
+                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        >
+                          Delete Topic
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 )}
               </div>
             </div>

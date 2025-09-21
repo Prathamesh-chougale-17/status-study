@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { ExternalLink, Video, FileText, BookOpen, GraduationCap, Target, Edit2, Trash2 } from 'lucide-react';
 import { StudyResource } from '@/lib/types';
 import { useState } from 'react';
@@ -122,14 +123,14 @@ export default function ResourceCard({ resource, onStatusChange, onNotesChange, 
   };
 
   const handleDeleteResource = () => {
-    if (onResourceDelete && confirm('Are you sure you want to delete this resource?')) {
+    if (onResourceDelete) {
       onResourceDelete(resource._id!);
     }
   };
   
   return (
     <>
-      <Card className="group bg-gradient-to-br from-black/50 to-black/30 backdrop-blur-md border border-white/10 hover:border-white/30 hover:shadow-2xl hover:shadow-orange-500/20 transition-all duration-300 hover:scale-[1.01]">
+      <Card className="group bg-card/50 backdrop-blur-md border border-border hover:border-orange-500/30 hover:shadow-2xl hover:shadow-orange-500/20 transition-all duration-300 hover:scale-[1.01]">
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between">
             <div className="flex items-start gap-3 flex-1">
@@ -137,10 +138,10 @@ export default function ResourceCard({ resource, onStatusChange, onNotesChange, 
                 <TypeIcon className="h-4 w-4" />
               </div>
               <div className="flex-1 min-w-0">
-                <CardTitle className="text-lg text-white group-hover:text-orange-400 transition-colors duration-300 mb-1 line-clamp-2">
+                <CardTitle className="text-lg text-foreground group-hover:text-orange-500 transition-colors duration-300 mb-1 line-clamp-2">
                   {resource.title}
                 </CardTitle>
-                <CardDescription className="text-gray-300 text-sm line-clamp-2">
+                <CardDescription className="text-muted-foreground text-sm line-clamp-2">
                   {resource.description}
                 </CardDescription>
               </div>
@@ -159,21 +160,43 @@ export default function ResourceCard({ resource, onStatusChange, onNotesChange, 
                       size="sm"
                       variant="ghost"
                       onClick={handleOpenDialog}
-                      className="h-6 w-6 p-0 hover:bg-white/10"
+                      className="h-6 w-6 p-0 hover:bg-muted"
                     >
                       <Edit2 className="h-3 w-3 text-orange-400" />
                     </Button>
                   </DialogTrigger>
                 </Dialog>
                 {onResourceDelete && (
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={handleDeleteResource}
-                    className="h-6 w-6 p-0 hover:bg-red-500/20"
-                  >
-                    <Trash2 className="h-3 w-3 text-red-400" />
-                  </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-6 w-6 p-0 hover:bg-red-500/20"
+                      >
+                        <Trash2 className="h-3 w-3 text-red-400" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent className="bg-background border border-border">
+                      <AlertDialogHeader>
+                        <AlertDialogTitle className="text-foreground">Delete Resource</AlertDialogTitle>
+                        <AlertDialogDescription className="text-muted-foreground">
+                          Are you sure you want to delete "{resource.title}"? This action cannot be undone and will permanently remove the resource.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel className="border-border text-foreground hover:bg-muted">
+                          Cancel
+                        </AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={handleDeleteResource}
+                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        >
+                          Delete Resource
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 )}
               </div>
             </div>
@@ -182,7 +205,7 @@ export default function ResourceCard({ resource, onStatusChange, onNotesChange, 
         <CardContent className="pt-0">
           <div className="space-y-3">
             {resource.url && (
-              <div className="flex items-center gap-2 p-2 bg-white/5 rounded-lg border border-white/10 hover:bg-white/10 transition-colors">
+              <div className="flex items-center gap-2 p-2 bg-muted/20 rounded-lg border border-border hover:bg-muted/30 transition-colors">
                 <ExternalLink className="h-4 w-4 text-orange-400 flex-shrink-0" />
                 <a
                   href={resource.url}
@@ -201,7 +224,7 @@ export default function ResourceCard({ resource, onStatusChange, onNotesChange, 
                   <Badge 
                     key={index} 
                     variant="outline" 
-                    className="text-xs bg-white/10 text-white border-white/20 hover:bg-white/20 transition-colors px-1.5 py-0.5"
+                    className="text-xs bg-muted text-muted-foreground border-border hover:bg-muted/80 transition-colors px-1.5 py-0.5"
                   >
                     #{tag}
                   </Badge>
@@ -209,7 +232,7 @@ export default function ResourceCard({ resource, onStatusChange, onNotesChange, 
                 {resource.tags.length > 3 && (
                   <Badge 
                     variant="outline" 
-                    className="text-xs bg-white/10 text-white border-white/20 px-1.5 py-0.5"
+                    className="text-xs bg-muted text-muted-foreground border-border px-1.5 py-0.5"
                   >
                     +{resource.tags.length - 3}
                   </Badge>
@@ -218,29 +241,29 @@ export default function ResourceCard({ resource, onStatusChange, onNotesChange, 
             )}
 
             {onStatusChange && (
-              <div className="flex items-center justify-between p-1.5 bg-gradient-to-r from-white/5 to-white/10 rounded-md border border-white/10">
-                <span className="text-xs text-gray-300 font-medium">Status</span>
+              <div className="flex items-center justify-between p-1.5 bg-gradient-to-r from-muted/20 to-muted/30 rounded-md border border-border">
+                <span className="text-xs text-muted-foreground font-medium">Status</span>
                 <Select
                   value={resource.status}
                   onValueChange={(value) => onStatusChange(resource._id!, value)}
                 >
-                  <SelectTrigger className="w-32 h-5 bg-black/40 border border-white/20 text-white hover:bg-black/60 hover:border-white/30 transition-all duration-200 text-xs font-medium rounded shadow-sm">
+                  <SelectTrigger className="w-32 h-5 bg-background border border-border text-foreground hover:bg-muted hover:border-border/80 transition-all duration-200 text-xs font-medium rounded shadow-sm">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-black/95 border border-white/20 backdrop-blur-md shadow-2xl">
-                    <SelectItem value="not-started" className="hover:bg-white/10 text-xs text-gray-300 focus:bg-white/10 py-1">
+                  <SelectContent className="bg-background border border-border backdrop-blur-md shadow-2xl">
+                    <SelectItem value="not-started" className="hover:bg-muted text-xs text-muted-foreground focus:bg-muted py-1">
                       <div className="flex items-center gap-1.5">
                         <div className="w-1.5 h-1.5 bg-gray-400 rounded-full"></div>
                         Not Started
                       </div>
                     </SelectItem>
-                    <SelectItem value="in-progress" className="hover:bg-white/10 text-xs text-yellow-400 focus:bg-white/10 py-1">
+                    <SelectItem value="in-progress" className="hover:bg-muted text-xs text-yellow-400 focus:bg-muted py-1">
                       <div className="flex items-center gap-1.5">
                         <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full"></div>
                         In Progress
                       </div>
                     </SelectItem>
-                    <SelectItem value="completed" className="hover:bg-white/10 text-xs text-green-400 focus:bg-white/10 py-1">
+                    <SelectItem value="completed" className="hover:bg-muted text-xs text-green-400 focus:bg-muted py-1">
                       <div className="flex items-center gap-1.5">
                         <div className="w-1.5 h-1.5 bg-green-400 rounded-full"></div>
                         Completed
@@ -251,7 +274,7 @@ export default function ResourceCard({ resource, onStatusChange, onNotesChange, 
               </div>
             )}
 
-            <div className="text-xs text-gray-300 bg-gradient-to-r from-white/5 to-white/10 border border-white/10 p-2 rounded-lg leading-relaxed">
+            <div className="text-xs text-muted-foreground bg-gradient-to-r from-muted/20 to-muted/30 border border-border p-2 rounded-lg leading-relaxed">
               <div className="flex items-center gap-1 mb-1">
                 <div className="w-1.5 h-1.5 bg-orange-400 rounded-full"></div>
                 <span className="text-xs font-medium text-orange-400 uppercase tracking-wide">Notes</span>
@@ -267,52 +290,52 @@ export default function ResourceCard({ resource, onStatusChange, onNotesChange, 
       </Card>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-2xl bg-black/95 border border-white/20 backdrop-blur-md">
+        <DialogContent className="max-w-2xl bg-background border border-border backdrop-blur-md">
           <DialogHeader>
-            <DialogTitle className="text-white text-xl">Edit Resource</DialogTitle>
+            <DialogTitle className="text-foreground text-xl">Edit Resource</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label className="text-sm text-gray-300 mb-2 block">Title</Label>
+              <Label className="text-sm text-muted-foreground mb-2 block">Title</Label>
               <Input
                 value={editedResource.title}
                 onChange={(e) => setEditedResource({...editedResource, title: e.target.value})}
-                className="bg-black/40 border-white/20 text-white"
+                className="bg-background border-border text-foreground"
                 placeholder="Resource title"
               />
             </div>
             
             <div>
-              <Label className="text-sm text-gray-300 mb-2 block">Description</Label>
+              <Label className="text-sm text-muted-foreground mb-2 block">Description</Label>
               <Textarea
                 value={editedResource.description}
                 onChange={(e) => setEditedResource({...editedResource, description: e.target.value})}
-                className="bg-black/40 border-white/20 text-gray-300 resize-none min-h-[80px]"
+                className="bg-background border-border text-foreground resize-none min-h-[80px]"
                 placeholder="Resource description"
               />
             </div>
             
             <div>
-              <Label className="text-sm text-gray-300 mb-2 block">URL</Label>
+              <Label className="text-sm text-muted-foreground mb-2 block">URL</Label>
               <Input
                 value={editedResource.url}
                 onChange={(e) => setEditedResource({...editedResource, url: e.target.value})}
-                className="bg-black/40 border-white/20 text-white"
+                className="bg-background border-border text-foreground"
                 placeholder="https://example.com"
               />
             </div>
             
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label className="text-sm text-gray-300 mb-2 block">Type</Label>
+                <Label className="text-sm text-muted-foreground mb-2 block">Type</Label>
                 <Select
                   value={editedResource.type}
                   onValueChange={(value: 'video' | 'article' | 'book' | 'course' | 'practice' | 'other') => setEditedResource({...editedResource, type: value})}
                 >
-                  <SelectTrigger className="bg-black/40 border-white/20 text-white">
+                  <SelectTrigger className="bg-background border-border text-foreground">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-black/95 border border-white/20">
+                  <SelectContent className="bg-background border-border">
                     <SelectItem value="video">Video</SelectItem>
                     <SelectItem value="article">Article</SelectItem>
                     <SelectItem value="book">Book</SelectItem>
@@ -323,15 +346,15 @@ export default function ResourceCard({ resource, onStatusChange, onNotesChange, 
               </div>
               
               <div>
-                <Label className="text-sm text-gray-300 mb-2 block">Priority</Label>
+                <Label className="text-sm text-muted-foreground mb-2 block">Priority</Label>
                 <Select
                   value={editedResource.priority}
                   onValueChange={(value: 'low' | 'medium' | 'high') => setEditedResource({...editedResource, priority: value})}
                 >
-                  <SelectTrigger className="bg-black/40 border-white/20 text-white">
+                  <SelectTrigger className="bg-background border-border text-foreground">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-black/95 border border-white/20">
+                  <SelectContent className="bg-background border-border">
                     <SelectItem value="low">Low</SelectItem>
                     <SelectItem value="medium">Medium</SelectItem>
                     <SelectItem value="high">High</SelectItem>
@@ -341,21 +364,21 @@ export default function ResourceCard({ resource, onStatusChange, onNotesChange, 
             </div>
             
             <div>
-              <Label className="text-sm text-gray-300 mb-2 block">Tags (comma separated)</Label>
+              <Label className="text-sm text-muted-foreground mb-2 block">Tags (comma separated)</Label>
               <Input
                 value={editedResource.tags}
                 onChange={(e) => setEditedResource({...editedResource, tags: e.target.value})}
-                className="bg-black/40 border-white/20 text-white"
+                className="bg-background border-border text-foreground"
                 placeholder="tag1, tag2, tag3"
               />
             </div>
             
             <div>
-              <Label className="text-sm text-gray-300 mb-2 block">Notes</Label>
+              <Label className="text-sm text-muted-foreground mb-2 block">Notes</Label>
               <Textarea
                 value={editedResource.notes}
                 onChange={(e) => setEditedResource({...editedResource, notes: e.target.value})}
-                className="bg-black/40 border-white/20 text-white resize-none min-h-[100px]"
+                className="bg-background border-border text-foreground resize-none min-h-[100px]"
                 placeholder="Add your notes here..."
               />
             </div>
@@ -364,13 +387,13 @@ export default function ResourceCard({ resource, onStatusChange, onNotesChange, 
               <Button
                 variant="outline"
                 onClick={handleCancelEdit}
-                className="border-white/20 text-white hover:bg-white/10"
+                className="border-border text-foreground hover:bg-muted"
               >
                 Cancel
               </Button>
               <Button
                 onClick={handleSaveResource}
-                className="bg-orange-500 hover:bg-orange-600"
+                className="bg-orange-500 hover:bg-orange-600 text-white"
               >
                 Save Changes
               </Button>
