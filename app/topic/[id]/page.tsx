@@ -140,17 +140,17 @@ export default function TopicPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen w-full bg-[#0f0f0f] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-orange-500"></div>
       </div>
     );
   }
 
   if (!topic) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen w-full bg-[#0f0f0f] flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+          <h1 className="text-2xl font-bold text-white mb-4">
             Topic not found
           </h1>
           <Button onClick={() => router.push('/')}>
@@ -166,25 +166,25 @@ export default function TopicPage() {
     const TypeIcon = resourceTypeIcons[resource.type] || FileText;
     
     return (
-      <Card className="hover:shadow-md transition-shadow">
+      <Card className="bg-black/40 backdrop-blur-sm border border-white/10 hover:border-white/20 hover:shadow-2xl hover:shadow-orange-500/10 transition-all duration-300">
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <TypeIcon className="h-5 w-5 text-blue-600" />
+              <div className="p-3 bg-orange-500/20 rounded-xl border border-orange-500/30">
+                <TypeIcon className="h-5 w-5 text-orange-400" />
               </div>
               <div className="flex-1">
-                <CardTitle className="text-lg">{resource.title}</CardTitle>
-                <CardDescription className="text-sm mt-1">
+                <CardTitle className="text-lg text-white">{resource.title}</CardTitle>
+                <CardDescription className="text-sm mt-1 text-gray-300">
                   {resource.description}
                 </CardDescription>
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <Badge className={statusColors[resource.status]}>
+              <Badge className={`${statusColors[resource.status]} bg-white/10 text-white border-white/20`}>
                 {resource.status.replace('-', ' ')}
               </Badge>
-              <Badge className={priorityColors[resource.priority]}>
+              <Badge className={`${priorityColors[resource.priority]} bg-white/10 text-white border-white/20`}>
                 {resource.priority}
               </Badge>
             </div>
@@ -194,12 +194,12 @@ export default function TopicPage() {
           <div className="space-y-3">
             {resource.url && (
               <div className="flex items-center gap-2">
-                <ExternalLink className="h-4 w-4 text-gray-500" />
+                <ExternalLink className="h-4 w-4 text-gray-400" />
                 <a
                   href={resource.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-600 hover:text-blue-800 text-sm truncate"
+                  className="text-orange-400 hover:text-orange-300 text-sm truncate"
                 >
                   {resource.url}
                 </a>
@@ -209,7 +209,7 @@ export default function TopicPage() {
             {resource.tags.length > 0 && (
               <div className="flex flex-wrap gap-1">
                 {resource.tags.map((tag, index) => (
-                  <Badge key={index} variant="outline" className="text-xs">
+                  <Badge key={index} variant="outline" className="text-xs bg-white/10 text-white border-white/20">
                     {tag}
                   </Badge>
                 ))}
@@ -217,17 +217,17 @@ export default function TopicPage() {
             )}
 
             <div className="flex items-center gap-2">
-              <Label htmlFor={`status-${resource._id}`} className="text-sm">
+              <Label htmlFor={`status-${resource._id}`} className="text-sm text-gray-300">
                 Status:
               </Label>
               <Select
                 value={resource.status}
                 onValueChange={(value) => handleUpdateResourceStatus(resource._id!, value)}
               >
-                <SelectTrigger className="w-32 h-8">
+                <SelectTrigger className="w-32 h-8 bg-white/10 border-white/20 text-white">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-black/90 border-white/20">
                   <SelectItem value="not-started">Not Started</SelectItem>
                   <SelectItem value="in-progress">In Progress</SelectItem>
                   <SelectItem value="completed">Completed</SelectItem>
@@ -236,7 +236,7 @@ export default function TopicPage() {
             </div>
 
             {resource.notes && (
-              <div className="text-sm text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 p-2 rounded">
+              <div className="text-sm text-gray-300 bg-white/5 border border-white/10 p-3 rounded-lg">
                 {resource.notes}
               </div>
             )}
@@ -247,8 +247,19 @@ export default function TopicPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
-      <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen w-full bg-[#0f0f0f] relative text-white">
+      {/* Diagonal Grid with Red/Blue Glow */}
+      <div
+        className="absolute inset-0 z-0 pointer-events-none"
+        style={{
+          backgroundImage: `
+     repeating-linear-gradient(45deg, rgba(255, 140, 0, 0.12) 0, rgba(255, 140, 0, 0.12) 1px, transparent 1px, transparent 22px),
+          repeating-linear-gradient(-45deg, rgba(255, 69, 0, 0.08) 0, rgba(255, 69, 0, 0.08) 1px, transparent 1px, transparent 22px)
+          `,
+          backgroundSize: "44px 44px",
+        }}
+      />
+      <div className="container mx-auto px-4 py-8 relative z-10">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
@@ -276,10 +287,10 @@ export default function TopicPage() {
               {iconMap[topic.icon as keyof typeof iconMap] || '📚'}
             </div>
             <div>
-              <h1 className="text-4xl font-bold text-gray-900 dark:text-white">
+              <h1 className="text-4xl font-bold text-white">
                 {topic.title}
               </h1>
-              <p className="text-gray-600 dark:text-gray-300 mt-2">
+              <p className="text-gray-300 mt-2">
                 {topic.description}
               </p>
             </div>
@@ -288,7 +299,7 @@ export default function TopicPage() {
 
         <div>
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">
+              <h2 className="text-2xl font-semibold text-white">
                 Resources ({topic.resources.length})
               </h2>
               
@@ -405,17 +416,17 @@ export default function TopicPage() {
             </div>
 
             {topic.resources.length === 0 ? (
-              <Card>
+              <Card className="bg-black/40 backdrop-blur-sm border border-white/10">
                 <CardContent className="text-center py-12">
-                  <div className="text-gray-500 dark:text-gray-400">
+                  <div className="text-gray-400">
                     <BookOpen className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                    <h3 className="text-lg font-medium mb-2">No resources yet</h3>
+                    <h3 className="text-lg font-medium mb-2 text-white">No resources yet</h3>
                     <p className="text-sm">Add your first resource to get started with this topic.</p>
                   </div>
                 </CardContent>
               </Card>
             ) : (
-              <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                 {topic.resources.map((resource) => (
                   <ResourceCard key={resource._id} resource={resource} />
                 ))}

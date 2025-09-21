@@ -171,25 +171,25 @@ export default function Home() {
     
     return (
       <Link href={`/topic/${topic._id}`}>
-        <Card className="h-full hover:shadow-lg transition-all duration-200 cursor-pointer group">
+        <Card className="h-full bg-black/40 backdrop-blur-sm border border-white/10 hover:border-white/20 hover:shadow-2xl hover:shadow-orange-500/10 transition-all duration-300 cursor-pointer group">
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
-              <div className={`p-2 rounded-lg ${topic.color} text-white`}>
+              <div className={`p-3 rounded-xl ${topic.color} text-white shadow-lg group-hover:scale-110 transition-transform duration-300`}>
                 <IconComponent className="h-6 w-6" />
               </div>
-              <Badge variant="secondary" className="text-xs">
+              <Badge variant="secondary" className="text-xs bg-white/10 text-white border-white/20">
                 {topic.resources.length} resources
               </Badge>
             </div>
-            <CardTitle className="text-lg group-hover:text-blue-600 transition-colors">
+            <CardTitle className="text-lg text-white group-hover:text-orange-400 transition-colors">
               {topic.title}
             </CardTitle>
-            <CardDescription className="text-sm">
+            <CardDescription className="text-sm text-gray-300">
               {topic.description}
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-sm text-gray-600 dark:text-gray-300">
+            <div className="text-sm text-gray-400">
               {topic.resources.length} resources available
             </div>
           </CardContent>
@@ -200,23 +200,34 @@ export default function Home() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen w-full bg-[#0f0f0f] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-orange-500"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
-      <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen w-full bg-[#0f0f0f] relative text-white">
+      {/* Diagonal Grid with Red/Blue Glow */}
+      <div
+        className="absolute inset-0 z-0 pointer-events-none"
+        style={{
+          backgroundImage: `
+     repeating-linear-gradient(45deg, rgba(255, 140, 0, 0.12) 0, rgba(255, 140, 0, 0.12) 1px, transparent 1px, transparent 22px),
+          repeating-linear-gradient(-45deg, rgba(255, 69, 0, 0.08) 0, rgba(255, 69, 0, 0.08) 1px, transparent 1px, transparent 22px)
+          `,
+          backgroundSize: "44px 44px",
+        }}
+      />
+      <div className="container mx-auto px-4 py-8 relative z-10">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
+              <h1 className="text-4xl font-bold text-white mb-2">
                 Study Dashboard
               </h1>
-              <p className="text-gray-600 dark:text-gray-300">
+              <p className="text-gray-300">
                 Organize your interview prep and career growth resources in one place
               </p>
             </div>
@@ -245,7 +256,7 @@ export default function Home() {
             {/* Interview Prep Section */}
             <section>
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">
+                <h2 className="text-2xl font-semibold text-white">
                   Interview Prep
                 </h2>
                 <Button 
@@ -267,7 +278,7 @@ export default function Home() {
             {/* Career Growth Section */}
             <section>
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">
+                <h2 className="text-2xl font-semibold text-white">
                   Job & SDE Career Growth
                 </h2>
                 <Button 
