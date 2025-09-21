@@ -21,6 +21,7 @@ export default function SubtopicPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [isEditingNotes, setIsEditingNotes] = useState(false);
   const [editedTitle, setEditedTitle] = useState('');
   const [editedDescription, setEditedDescription] = useState('');
   const [editedNotes, setEditedNotes] = useState('');
@@ -68,7 +69,6 @@ export default function SubtopicPage() {
         body: JSON.stringify({
           title: editedTitle,
           description: editedDescription,
-          notes: editedNotes,
         }),
       });
 
@@ -77,7 +77,6 @@ export default function SubtopicPage() {
           ...subtopic,
           title: editedTitle,
           description: editedDescription,
-          notes: editedNotes,
         });
         setIsEditing(false);
       } else {
@@ -86,6 +85,38 @@ export default function SubtopicPage() {
     } catch (error) {
       console.error('Error saving subtopic:', error);
       alert('Failed to save changes');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleSaveNotes = async () => {
+    if (!subtopic) return;
+    
+    try {
+      setSaving(true);
+      const response = await fetch(`/api/subtopics/${params.subtopicId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          notes: editedNotes,
+        }),
+      });
+
+      if (response.ok) {
+        setSubtopic({
+          ...subtopic,
+          notes: editedNotes,
+        });
+        setIsEditingNotes(false);
+      } else {
+        alert('Failed to save notes');
+      }
+    } catch (error) {
+      console.error('Error saving notes:', error);
+      alert('Failed to save notes');
     } finally {
       setSaving(false);
     }
@@ -241,12 +272,11 @@ export default function SubtopicPage() {
                 <div className="flex gap-2">
                   <Button
                     variant="outline"
-                    onClick={() => {
-                      setIsEditing(false);
-                      setEditedTitle(subtopic.title);
-                      setEditedDescription(subtopic.description);
-                      setEditedNotes(subtopic.notes || '');
-                    }}
+                     onClick={() => {
+                       setIsEditing(false);
+                       setEditedTitle(subtopic.title);
+                       setEditedDescription(subtopic.description);
+                     }}
                   >
                     Cancel
                   </Button>
@@ -336,29 +366,68 @@ export default function SubtopicPage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Notes Section */}
-          <div className="lg:col-span-2">
-            <Card className="bg-card/50 backdrop-blur-sm border border-border">
-              <CardHeader>
-                <CardTitle className="text-foreground">Notes</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {isEditing ? (
-                  <NotesEditor
-                    value={editedNotes}
-                    onChange={setEditedNotes}
-                    placeholder="Start writing your notes..."
-                    className="min-h-[400px]"
-                  />
-                ) : (
-                  <div 
-                    className="prose prose-invert max-w-none min-h-[400px] p-4 bg-muted/20 rounded-lg border border-border"
-                    dangerouslySetInnerHTML={{ __html: subtopic.notes || '<p class="text-muted-foreground italic">No notes added yet. Click Edit to add your notes.</p>' }}
-                  />
-                )}
-              </CardContent>
-            </Card>
-          </div>
+           {/* Notes Section */}
+           <div className="lg:col-span-2">
+             <Card className="bg-card/50 backdrop-blur-sm border border-border">
+               <CardHeader>
+                 <div className="flex items-center justify-between">
+                   <CardTitle className="text-foreground">Notes</CardTitle>
+                   {isEditingNotes ? (
+                     <div className="flex gap-2">
+                       <Button
+                         variant="outline"
+                         size="sm"
+                         onClick={() => {
+                           setIsEditingNotes(false);
+                           setEditedNotes(subtopic.notes || '');
+                         }}
+                         disabled={saving}
+                       >
+                         Cancel
+                       </Button>
+                       <Button
+                         size="sm"
+                         onClick={handleSaveNotes}
+                         disabled={saving}
+                         className="gap-2"
+                       >
+                         <Save className="h-4 w-4" />
+                         {saving ? 'Saving...' : 'Save Notes'}
+                       </Button>
+                     </div>
+                   ) : (
+                     <Button
+                       variant="outline"
+                       size="sm"
+                       onClick={() => {
+                         setIsEditingNotes(true);
+                         setEditedNotes(subtopic.notes || '');
+                       }}
+                       className="gap-2"
+                     >
+                       <Edit2 className="h-4 w-4" />
+                       Edit Notes
+                     </Button>
+                   )}
+                 </div>
+               </CardHeader>
+               <CardContent>
+                 {isEditingNotes ? (
+                   <NotesEditor
+                     value={editedNotes}
+                     onChange={setEditedNotes}
+                     placeholder="Start writing your notes..."
+                     className="min-h-[400px]"
+                   />
+                 ) : (
+                   <div 
+                     className="prose prose-invert max-w-none min-h-[400px] p-4 bg-muted/20 rounded-lg border border-border"
+                     dangerouslySetInnerHTML={{ __html: subtopic.notes || '<p class="text-muted-foreground italic">No notes added yet. Click "Edit Notes" to add your notes.</p>' }}
+                   />
+                 )}
+               </CardContent>
+             </Card>
+           </div>
 
           {/* Links Section */}
           <div>
