@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
 
     await client.connect();
     const db = client.db('study-dashboard');
-    const result = await db.collection('topics').insertOne(topic);
+    const result = await db.collection('topics').insertOne(topic as any);
     
     return NextResponse.json({ ...topic, _id: result.insertedId });
   } catch (error) {

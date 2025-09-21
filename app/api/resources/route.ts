@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
     // Add resource to the topic
     const result = await db.collection('topics').updateOne(
       { _id: new ObjectId(topicId) },
-      { $push: { resources: resource } }
+      { $push: { resources: resource } } as any
     );
     
     if (result.matchedCount === 0) {

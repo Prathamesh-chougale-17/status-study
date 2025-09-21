@@ -6,7 +6,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { ExternalLink, Video, FileText, BookOpen, GraduationCap, Target, Edit2, Save, X } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { ExternalLink, Video, FileText, BookOpen, GraduationCap, Target, Edit2, Trash2 } from 'lucide-react';
 import { StudyResource } from '@/lib/types';
 import { useState } from 'react';
 
@@ -35,12 +37,23 @@ interface ResourceCardProps {
   resource: StudyResource;
   onStatusChange?: (resourceId: string, newStatus: string) => void;
   onNotesChange?: (resourceId: string, newNotes: string) => void;
+  onResourceUpdate?: (resourceId: string, updatedResource: Partial<StudyResource>) => void;
+  onResourceDelete?: (resourceId: string) => void;
 }
 
-export default function ResourceCard({ resource, onStatusChange, onNotesChange }: ResourceCardProps) {
+export default function ResourceCard({ resource, onStatusChange, onNotesChange, onResourceUpdate, onResourceDelete }: ResourceCardProps) {
   const TypeIcon = resourceTypeIcons[resource.type] || FileText;
-  const [isEditingNotes, setIsEditingNotes] = useState(false);
-  const [editedNotes, setEditedNotes] = useState(resource.notes || '');
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editedResource, setEditedResource] = useState({
+    title: resource.title,
+    description: resource.description,
+    url: resource.url,
+    type: resource.type,
+    status: resource.status,
+    priority: resource.priority,
+    tags: resource.tags.join(', '),
+    notes: resource.notes || '',
+  });
   
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -69,173 +82,302 @@ export default function ResourceCard({ resource, onStatusChange, onNotesChange }
     }
   };
 
-  const handleSaveNotes = () => {
-    if (onNotesChange) {
-      onNotesChange(resource._id!, editedNotes);
+  const handleSaveResource = () => {
+    if (onResourceUpdate) {
+      const updatedResource = {
+        ...editedResource,
+        tags: editedResource.tags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0),
+      };
+      onResourceUpdate(resource._id!, updatedResource);
     }
-    setIsEditingNotes(false);
+    setIsDialogOpen(false);
   };
 
   const handleCancelEdit = () => {
-    setEditedNotes(resource.notes || '');
-    setIsEditingNotes(false);
+    setEditedResource({
+      title: resource.title,
+      description: resource.description,
+      url: resource.url,
+      type: resource.type,
+      status: resource.status,
+      priority: resource.priority,
+      tags: resource.tags.join(', '),
+      notes: resource.notes || '',
+    });
+    setIsDialogOpen(false);
+  };
+
+  const handleOpenDialog = () => {
+    setEditedResource({
+      title: resource.title,
+      description: resource.description,
+      url: resource.url,
+      type: resource.type,
+      status: resource.status,
+      priority: resource.priority,
+      tags: resource.tags.join(', '),
+      notes: resource.notes || '',
+    });
+    setIsDialogOpen(true);
+  };
+
+  const handleDeleteResource = () => {
+    if (onResourceDelete && confirm('Are you sure you want to delete this resource?')) {
+      onResourceDelete(resource._id!);
+    }
   };
   
   return (
-    <Card className="group bg-gradient-to-br from-black/50 to-black/30 backdrop-blur-md border border-white/10 hover:border-white/30 hover:shadow-2xl hover:shadow-orange-500/20 transition-all duration-300 hover:scale-[1.01]">
-      <CardHeader className="pb-3">
-        <div className="flex items-start justify-between">
-          <div className="flex items-start gap-3 flex-1">
-            <div className={`p-2.5 rounded-lg border ${getTypeColor(resource.type)} group-hover:scale-105 transition-transform duration-300 shadow-md`}>
-              <TypeIcon className="h-4 w-4" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <CardTitle className="text-lg text-white group-hover:text-orange-400 transition-colors duration-300 mb-1 line-clamp-2">
-                {resource.title}
-              </CardTitle>
-              <CardDescription className="text-gray-300 text-sm line-clamp-2">
-                {resource.description}
-              </CardDescription>
-            </div>
-          </div>
-          <div className="flex flex-col gap-1 ml-3">
-            <Badge className={`${getStatusColor(resource.status)} px-2 py-0.5 text-xs font-medium border`}>
-              {resource.status.replace('-', ' ')}
-            </Badge>
-            <Badge className={`${getPriorityColor(resource.priority)} px-2 py-0.5 text-xs font-medium border`}>
-              {resource.priority}
-            </Badge>
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent className="pt-0">
-        <div className="space-y-3">
-          {resource.url && (
-            <div className="flex items-center gap-2 p-2 bg-white/5 rounded-lg border border-white/10 hover:bg-white/10 transition-colors">
-              <ExternalLink className="h-4 w-4 text-orange-400 flex-shrink-0" />
-              <a
-                href={resource.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-orange-400 hover:text-orange-300 text-xs truncate font-medium"
-              >
-                {resource.url}
-              </a>
-            </div>
-          )}
-          
-          {resource.tags.length > 0 && (
-            <div className="flex flex-wrap gap-1">
-              {resource.tags.slice(0, 3).map((tag, index) => (
-                <Badge 
-                  key={index} 
-                  variant="outline" 
-                  className="text-xs bg-white/10 text-white border-white/20 hover:bg-white/20 transition-colors px-1.5 py-0.5"
-                >
-                  #{tag}
-                </Badge>
-              ))}
-              {resource.tags.length > 3 && (
-                <Badge 
-                  variant="outline" 
-                  className="text-xs bg-white/10 text-white border-white/20 px-1.5 py-0.5"
-                >
-                  +{resource.tags.length - 3}
-                </Badge>
-              )}
-            </div>
-          )}
-
-          {onStatusChange && (
-            <div className="flex items-center justify-between p-1.5 bg-gradient-to-r from-white/5 to-white/10 rounded-md border border-white/10">
-              <span className="text-xs text-gray-300 font-medium">Status</span>
-              <Select
-                value={resource.status}
-                onValueChange={(value) => onStatusChange(resource._id!, value)}
-              >
-                <SelectTrigger className="w-32 h-5 bg-black/40 border border-white/20 text-white hover:bg-black/60 hover:border-white/30 transition-all duration-200 text-xs font-medium rounded shadow-sm">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-black/95 border border-white/20 backdrop-blur-md shadow-2xl">
-                  <SelectItem value="not-started" className="hover:bg-white/10 text-xs text-gray-300 focus:bg-white/10 py-1">
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-1.5 h-1.5 bg-gray-400 rounded-full"></div>
-                      Not Started
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="in-progress" className="hover:bg-white/10 text-xs text-yellow-400 focus:bg-white/10 py-1">
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full"></div>
-                      In Progress
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="completed" className="hover:bg-white/10 text-xs text-green-400 focus:bg-white/10 py-1">
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-1.5 h-1.5 bg-green-400 rounded-full"></div>
-                      Completed
-                    </div>
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          )}
-
-          <div className="text-xs text-gray-300 bg-gradient-to-r from-white/5 to-white/10 border border-white/10 p-2 rounded-lg leading-relaxed">
-            <div className="flex items-center justify-between mb-1">
-              <div className="flex items-center gap-1">
-                <div className="w-1.5 h-1.5 bg-orange-400 rounded-full"></div>
-                <span className="text-xs font-medium text-orange-400 uppercase tracking-wide">Notes</span>
+    <>
+      <Card className="group bg-gradient-to-br from-black/50 to-black/30 backdrop-blur-md border border-white/10 hover:border-white/30 hover:shadow-2xl hover:shadow-orange-500/20 transition-all duration-300 hover:scale-[1.01]">
+        <CardHeader className="pb-3">
+          <div className="flex items-start justify-between">
+            <div className="flex items-start gap-3 flex-1">
+              <div className={`p-2.5 rounded-lg border ${getTypeColor(resource.type)} group-hover:scale-105 transition-transform duration-300 shadow-md`}>
+                <TypeIcon className="h-4 w-4" />
               </div>
-              {onNotesChange && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setIsEditingNotes(!isEditingNotes)}
-                  className="h-5 w-5 p-0 hover:bg-white/10"
-                >
-                  <Edit2 className="h-3 w-3 text-orange-400" />
-                </Button>
-              )}
+              <div className="flex-1 min-w-0">
+                <CardTitle className="text-lg text-white group-hover:text-orange-400 transition-colors duration-300 mb-1 line-clamp-2">
+                  {resource.title}
+                </CardTitle>
+                <CardDescription className="text-gray-300 text-sm line-clamp-2">
+                  {resource.description}
+                </CardDescription>
+              </div>
             </div>
+            <div className="flex flex-col gap-1 ml-3">
+              <Badge className={`${getStatusColor(resource.status)} px-2 py-0.5 text-xs font-medium border`}>
+                {resource.status.replace('-', ' ')}
+              </Badge>
+              <Badge className={`${getPriorityColor(resource.priority)} px-2 py-0.5 text-xs font-medium border`}>
+                {resource.priority}
+              </Badge>
+              <div className="flex gap-1">
+                <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={handleOpenDialog}
+                      className="h-6 w-6 p-0 hover:bg-white/10"
+                    >
+                      <Edit2 className="h-3 w-3 text-orange-400" />
+                    </Button>
+                  </DialogTrigger>
+                </Dialog>
+                {onResourceDelete && (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={handleDeleteResource}
+                    className="h-6 w-6 p-0 hover:bg-red-500/20"
+                  >
+                    <Trash2 className="h-3 w-3 text-red-400" />
+                  </Button>
+                )}
+              </div>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="pt-0">
+          <div className="space-y-3">
+            {resource.url && (
+              <div className="flex items-center gap-2 p-2 bg-white/5 rounded-lg border border-white/10 hover:bg-white/10 transition-colors">
+                <ExternalLink className="h-4 w-4 text-orange-400 flex-shrink-0" />
+                <a
+                  href={resource.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-orange-400 hover:text-orange-300 text-xs truncate font-medium"
+                >
+                  {resource.url}
+                </a>
+              </div>
+            )}
             
-            {isEditingNotes ? (
-              <div className="space-y-2">
-                <Textarea
-                  value={editedNotes}
-                  onChange={(e) => setEditedNotes(e.target.value)}
-                  placeholder="Add your notes here..."
-                  className="min-h-[60px] text-xs bg-black/40 border-white/20 text-white placeholder:text-gray-400 resize-none"
-                />
-                <div className="flex gap-1">
-                  <Button
-                    size="sm"
-                    onClick={handleSaveNotes}
-                    className="h-6 px-2 text-xs bg-orange-500 hover:bg-orange-600"
+            {resource.tags.length > 0 && (
+              <div className="flex flex-wrap gap-1">
+                {resource.tags.slice(0, 3).map((tag, index) => (
+                  <Badge 
+                    key={index} 
+                    variant="outline" 
+                    className="text-xs bg-white/10 text-white border-white/20 hover:bg-white/20 transition-colors px-1.5 py-0.5"
                   >
-                    <Save className="h-3 w-3 mr-1" />
-                    Save
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={handleCancelEdit}
-                    className="h-6 px-2 text-xs border-white/20 text-white hover:bg-white/10"
+                    #{tag}
+                  </Badge>
+                ))}
+                {resource.tags.length > 3 && (
+                  <Badge 
+                    variant="outline" 
+                    className="text-xs bg-white/10 text-white border-white/20 px-1.5 py-0.5"
                   >
-                    <X className="h-3 w-3 mr-1" />
-                    Cancel
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              <div className="line-clamp-2 min-h-[20px]">
-                {resource.notes || (
-                  <span className="text-gray-500 italic">No notes added yet. Click edit to add notes.</span>
+                    +{resource.tags.length - 3}
+                  </Badge>
                 )}
               </div>
             )}
+
+            {onStatusChange && (
+              <div className="flex items-center justify-between p-1.5 bg-gradient-to-r from-white/5 to-white/10 rounded-md border border-white/10">
+                <span className="text-xs text-gray-300 font-medium">Status</span>
+                <Select
+                  value={resource.status}
+                  onValueChange={(value) => onStatusChange(resource._id!, value)}
+                >
+                  <SelectTrigger className="w-32 h-5 bg-black/40 border border-white/20 text-white hover:bg-black/60 hover:border-white/30 transition-all duration-200 text-xs font-medium rounded shadow-sm">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-black/95 border border-white/20 backdrop-blur-md shadow-2xl">
+                    <SelectItem value="not-started" className="hover:bg-white/10 text-xs text-gray-300 focus:bg-white/10 py-1">
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-1.5 h-1.5 bg-gray-400 rounded-full"></div>
+                        Not Started
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="in-progress" className="hover:bg-white/10 text-xs text-yellow-400 focus:bg-white/10 py-1">
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full"></div>
+                        In Progress
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="completed" className="hover:bg-white/10 text-xs text-green-400 focus:bg-white/10 py-1">
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-1.5 h-1.5 bg-green-400 rounded-full"></div>
+                        Completed
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            <div className="text-xs text-gray-300 bg-gradient-to-r from-white/5 to-white/10 border border-white/10 p-2 rounded-lg leading-relaxed">
+              <div className="flex items-center gap-1 mb-1">
+                <div className="w-1.5 h-1.5 bg-orange-400 rounded-full"></div>
+                <span className="text-xs font-medium text-orange-400 uppercase tracking-wide">Notes</span>
+              </div>
+              <div className="line-clamp-2 min-h-[20px]">
+                {resource.notes || (
+                  <span className="text-gray-500 italic">No notes added yet.</span>
+                )}
+              </div>
+            </div>
           </div>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="max-w-2xl bg-black/95 border border-white/20 backdrop-blur-md">
+          <DialogHeader>
+            <DialogTitle className="text-white text-xl">Edit Resource</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label className="text-sm text-gray-300 mb-2 block">Title</Label>
+              <Input
+                value={editedResource.title}
+                onChange={(e) => setEditedResource({...editedResource, title: e.target.value})}
+                className="bg-black/40 border-white/20 text-white"
+                placeholder="Resource title"
+              />
+            </div>
+            
+            <div>
+              <Label className="text-sm text-gray-300 mb-2 block">Description</Label>
+              <Textarea
+                value={editedResource.description}
+                onChange={(e) => setEditedResource({...editedResource, description: e.target.value})}
+                className="bg-black/40 border-white/20 text-gray-300 resize-none min-h-[80px]"
+                placeholder="Resource description"
+              />
+            </div>
+            
+            <div>
+              <Label className="text-sm text-gray-300 mb-2 block">URL</Label>
+              <Input
+                value={editedResource.url}
+                onChange={(e) => setEditedResource({...editedResource, url: e.target.value})}
+                className="bg-black/40 border-white/20 text-white"
+                placeholder="https://example.com"
+              />
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label className="text-sm text-gray-300 mb-2 block">Type</Label>
+                <Select
+                  value={editedResource.type}
+                  onValueChange={(value: 'video' | 'article' | 'book' | 'course' | 'practice' | 'other') => setEditedResource({...editedResource, type: value})}
+                >
+                  <SelectTrigger className="bg-black/40 border-white/20 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-black/95 border border-white/20">
+                    <SelectItem value="video">Video</SelectItem>
+                    <SelectItem value="article">Article</SelectItem>
+                    <SelectItem value="book">Book</SelectItem>
+                    <SelectItem value="course">Course</SelectItem>
+                    <SelectItem value="practice">Practice</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div>
+                <Label className="text-sm text-gray-300 mb-2 block">Priority</Label>
+                <Select
+                  value={editedResource.priority}
+                  onValueChange={(value: 'low' | 'medium' | 'high') => setEditedResource({...editedResource, priority: value})}
+                >
+                  <SelectTrigger className="bg-black/40 border-white/20 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-black/95 border border-white/20">
+                    <SelectItem value="low">Low</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="high">High</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            
+            <div>
+              <Label className="text-sm text-gray-300 mb-2 block">Tags (comma separated)</Label>
+              <Input
+                value={editedResource.tags}
+                onChange={(e) => setEditedResource({...editedResource, tags: e.target.value})}
+                className="bg-black/40 border-white/20 text-white"
+                placeholder="tag1, tag2, tag3"
+              />
+            </div>
+            
+            <div>
+              <Label className="text-sm text-gray-300 mb-2 block">Notes</Label>
+              <Textarea
+                value={editedResource.notes}
+                onChange={(e) => setEditedResource({...editedResource, notes: e.target.value})}
+                className="bg-black/40 border-white/20 text-white resize-none min-h-[100px]"
+                placeholder="Add your notes here..."
+              />
+            </div>
+            
+            <div className="flex justify-end gap-2 pt-4">
+              <Button
+                variant="outline"
+                onClick={handleCancelEdit}
+                className="border-white/20 text-white hover:bg-white/10"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleSaveResource}
+                className="bg-orange-500 hover:bg-orange-600"
+              >
+                Save Changes
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }

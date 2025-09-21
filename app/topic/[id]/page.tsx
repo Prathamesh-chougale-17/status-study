@@ -131,6 +131,34 @@ export default function TopicPage() {
     }
   };
 
+  const handleUpdateResource = async (resourceId: string, updatedResource: Partial<StudyResource>) => {
+    try {
+      // This would require a separate API endpoint for updating individual resources
+      // For now, we'll just update the local state
+      if (topic) {
+        const updatedResources = topic.resources.map(resource =>
+          resource._id === resourceId ? { ...resource, ...updatedResource } : resource
+        );
+        setTopic({ ...topic, resources: updatedResources });
+      }
+    } catch (error) {
+      console.error('Error updating resource:', error);
+    }
+  };
+
+  const handleDeleteResource = async (resourceId: string) => {
+    try {
+      // This would require a separate API endpoint for deleting individual resources
+      // For now, we'll just update the local state
+      if (topic) {
+        const updatedResources = topic.resources.filter(resource => resource._id !== resourceId);
+        setTopic({ ...topic, resources: updatedResources });
+      }
+    } catch (error) {
+      console.error('Error deleting resource:', error);
+    }
+  };
+
   const refreshTopic = () => {
     fetchTopic();
   };
@@ -387,6 +415,8 @@ export default function TopicPage() {
                      resource={resource} 
                      onStatusChange={handleUpdateResourceStatus}
                      onNotesChange={handleUpdateResourceNotes}
+                     onResourceUpdate={handleUpdateResource}
+                     onResourceDelete={handleDeleteResource}
                    />
                  ))}
                </div>
