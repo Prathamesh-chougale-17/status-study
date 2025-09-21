@@ -1,102 +1,40 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Plus, BookOpen, Code, Brain, Users, Target, Lightbulb, RefreshCw, AlertCircle } from 'lucide-react';
-import Link from 'next/link';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
+import { Plus, RefreshCw, AlertCircle } from 'lucide-react';
 import { StudyTopic } from '@/lib/types';
 import TopicCardSkeleton from '@/components/TopicCardSkeleton';
+import TopicCard from '@/components/TopicCard';
 
-const defaultTopics: StudyTopic[] = [
-  {
-    _id: '1',
-    title: 'Data Structures & Algorithms',
-    description: 'DSA: Data Structures & Algorithms',
-    icon: 'Code',
-    color: 'bg-green-500',
-    category: 'interview-prep',
-    resources: [],
-    progress: 0,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    _id: '2',
-    title: 'Low Level Design',
-    description: 'LLD: Low Level Design',
-    icon: 'Brain',
-    color: 'bg-purple-500',
-    category: 'interview-prep',
-    resources: [],
-    progress: 0,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    _id: '3',
-    title: 'Core Computer Science',
-    description: 'CORE Computer Science',
-    icon: 'BookOpen',
-    color: 'bg-blue-500',
-    category: 'interview-prep',
-    resources: [],
-    progress: 0,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    _id: '4',
-    title: 'Behavioral Interview Questions',
-    description: 'Managerial, Behavioral & HR',
-    icon: 'Users',
-    color: 'bg-orange-500',
-    category: 'interview-prep',
-    resources: [],
-    progress: 0,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    _id: '5',
-    title: 'System Design',
-    description: 'High-level system architecture and design patterns',
-    icon: 'Target',
-    color: 'bg-red-500',
-    category: 'career-growth',
-    resources: [],
-    progress: 0,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    _id: '6',
-    title: 'Software Engineering Best Practices',
-    description: '20+ Software Engineering Best Practices for Modern Web Development',
-    icon: 'Lightbulb',
-    color: 'bg-yellow-500',
-    category: 'career-growth',
-    resources: [],
-    progress: 0,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
+
+const colorOptions = [
+  { value: 'bg-green-500', label: 'Green' },
+  { value: 'bg-blue-500', label: 'Blue' },
+  { value: 'bg-purple-500', label: 'Purple' },
+  { value: 'bg-orange-500', label: 'Orange' },
+  { value: 'bg-red-500', label: 'Red' },
+  { value: 'bg-yellow-500', label: 'Yellow' },
+  { value: 'bg-gray-500', label: 'Gray' },
 ];
-
-const iconMap = {
-  Code,
-  Brain,
-  BookOpen,
-  Users,
-  Target,
-  Lightbulb,
-};
 
 export default function Home() {
   const [topics, setTopics] = useState<StudyTopic[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [newTopic, setNewTopic] = useState({
+    title: '',
+    description: '',
+    icon: 'BookOpen' as 'Code' | 'Brain' | 'BookOpen' | 'Users' | 'Target' | 'Lightbulb',
+    color: 'bg-gray-500',
+    category: 'interview-prep' as 'interview-prep' | 'career-growth',
+  });
 
   useEffect(() => {
     fetchData();
@@ -112,15 +50,15 @@ export default function Home() {
 
       if (topicsResponse.ok) {
         const topicsData = await topicsResponse.json();
-        setTopics(topicsData.length > 0 ? topicsData : defaultTopics);
+        setTopics(topicsData);
       } else {
         console.error('Failed to fetch topics');
-        setTopics(defaultTopics); // Fallback to default topics
+        setTopics([]);
       }
     } catch (error) {
       console.error('Error fetching data:', error);
-      setError('Failed to load data. Using default topics.');
-      setTopics(defaultTopics);
+      setError('Failed to load data.');
+      setTopics([]);
     } finally {
       setLoading(false);
     }
@@ -130,11 +68,11 @@ export default function Home() {
     fetchData();
   };
 
-  const createNewTopic = async (category: 'interview-prep' | 'career-growth') => {
-    const title = prompt('Enter topic title:');
-    if (!title) return;
-
-    const description = prompt('Enter topic description:') || '';
+  const handleCreateTopic = async () => {
+    if (!newTopic.title.trim()) {
+      alert('Please enter a topic title');
+      return;
+    }
     
     try {
       const response = await fetch('/api/topics', {
@@ -143,11 +81,7 @@ export default function Home() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          title,
-          description,
-          icon: 'BookOpen',
-          color: 'bg-gray-500',
-          category,
+          ...newTopic,
           resources: [],
           progress: 0,
         }),
@@ -155,6 +89,14 @@ export default function Home() {
 
       if (response.ok) {
         await fetchData(); // Refresh the data
+        setIsCreateDialogOpen(false);
+        setNewTopic({
+          title: '',
+          description: '',
+          icon: 'BookOpen',
+          color: 'bg-gray-500',
+          category: 'interview-prep',
+        });
       } else {
         alert('Failed to create topic');
       }
@@ -164,40 +106,46 @@ export default function Home() {
     }
   };
 
+  const handleUpdateTopic = async (topicId: string, updatedTopic: Partial<StudyTopic>) => {
+    try {
+      const response = await fetch(`/api/topics/${topicId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedTopic),
+      });
+
+      if (response.ok) {
+        await fetchData(); // Refresh the data
+      } else {
+        alert('Failed to update topic');
+      }
+    } catch (error) {
+      console.error('Error updating topic:', error);
+      alert('Failed to update topic');
+    }
+  };
+
+  const handleDeleteTopic = async (topicId: string) => {
+    try {
+      const response = await fetch(`/api/topics/${topicId}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        await fetchData(); // Refresh the data
+      } else {
+        alert('Failed to delete topic');
+      }
+    } catch (error) {
+      console.error('Error deleting topic:', error);
+      alert('Failed to delete topic');
+    }
+  };
+
   const interviewPrepTopics = topics.filter(topic => topic.category === 'interview-prep');
   const careerGrowthTopics = topics.filter(topic => topic.category === 'career-growth');
-
-  const TopicCard = ({ topic }: { topic: StudyTopic }) => {
-    const IconComponent = iconMap[topic.icon as keyof typeof iconMap] || BookOpen;
-    
-    return (
-      <Link href={`/topic/${topic._id}`}>
-        <Card className="h-full bg-black/40 backdrop-blur-sm border border-white/10 hover:border-white/20 hover:shadow-2xl hover:shadow-orange-500/10 transition-all duration-300 cursor-pointer group">
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <div className={`p-3 rounded-xl ${topic.color} text-white shadow-lg group-hover:scale-110 transition-transform duration-300`}>
-                <IconComponent className="h-6 w-6" />
-              </div>
-              <Badge variant="secondary" className="text-xs bg-white/10 text-white border-white/20">
-                {topic.resources.length} resources
-              </Badge>
-            </div>
-            <CardTitle className="text-lg text-white group-hover:text-orange-400 transition-colors">
-              {topic.title}
-            </CardTitle>
-            <CardDescription className="text-sm text-gray-300">
-              {topic.description}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-sm text-gray-400">
-              {topic.resources.length} resources available
-            </div>
-          </CardContent>
-        </Card>
-      </Link>
-    );
-  };
 
   if (loading) {
     return (
@@ -321,18 +269,27 @@ export default function Home() {
                 <h2 className="text-2xl font-semibold text-white">
                   Interview Prep
                 </h2>
-                <Button 
-                  size="sm" 
-                  className="gap-2"
-                  onClick={() => createNewTopic('interview-prep')}
-                >
-                  <Plus className="h-4 w-4" />
-                  New Topic
-                </Button>
+                <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button 
+                      size="sm" 
+                      className="gap-2"
+                      onClick={() => setNewTopic({...newTopic, category: 'interview-prep'})}
+                    >
+                      <Plus className="h-4 w-4" />
+                      New Topic
+                    </Button>
+                  </DialogTrigger>
+                </Dialog>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                 {interviewPrepTopics.map((topic) => (
-                  <TopicCard key={topic._id} topic={topic} />
+                  <TopicCard 
+                    key={topic._id} 
+                    topic={topic} 
+                    onTopicUpdate={handleUpdateTopic}
+                    onTopicDelete={handleDeleteTopic}
+                  />
                 ))}
               </div>
             </section>
@@ -343,23 +300,138 @@ export default function Home() {
                 <h2 className="text-2xl font-semibold text-white">
                   Job & SDE Career Growth
                 </h2>
-                <Button 
-                  size="sm" 
-                  className="gap-2"
-                  onClick={() => createNewTopic('career-growth')}
-                >
-                  <Plus className="h-4 w-4" />
-                  New Topic
-                </Button>
+                <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button 
+                      size="sm" 
+                      className="gap-2"
+                      onClick={() => setNewTopic({...newTopic, category: 'career-growth'})}
+                    >
+                      <Plus className="h-4 w-4" />
+                      New Topic
+                    </Button>
+                  </DialogTrigger>
+                </Dialog>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                 {careerGrowthTopics.map((topic) => (
-                  <TopicCard key={topic._id} topic={topic} />
+                  <TopicCard 
+                    key={topic._id} 
+                    topic={topic} 
+                    onTopicUpdate={handleUpdateTopic}
+                    onTopicDelete={handleDeleteTopic}
+                  />
                 ))}
               </div>
             </section>
         </div>
       </div>
+
+      {/* Create Topic Dialog */}
+      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+        <DialogContent className="max-w-2xl bg-black/95 border border-white/20 backdrop-blur-md">
+          <DialogHeader>
+            <DialogTitle className="text-white text-xl">Create New Topic</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label className="text-sm text-gray-300 mb-2 block">Title</Label>
+              <Input
+                value={newTopic.title}
+                onChange={(e) => setNewTopic({...newTopic, title: e.target.value})}
+                className="bg-black/40 border-white/20 text-white"
+                placeholder="Topic title"
+              />
+            </div>
+            
+            <div>
+              <Label className="text-sm text-gray-300 mb-2 block">Description</Label>
+              <Textarea
+                value={newTopic.description}
+                onChange={(e) => setNewTopic({...newTopic, description: e.target.value})}
+                className="bg-black/40 border-white/20 text-gray-300 resize-none min-h-[80px]"
+                placeholder="Topic description"
+              />
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label className="text-sm text-gray-300 mb-2 block">Icon</Label>
+                <Select
+                  value={newTopic.icon}
+                  onValueChange={(value: 'Code' | 'Brain' | 'BookOpen' | 'Users' | 'Target' | 'Lightbulb') => setNewTopic({...newTopic, icon: value})}
+                >
+                  <SelectTrigger className="bg-black/40 border-white/20 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-black/95 border border-white/20">
+                    <SelectItem value="Code">Code</SelectItem>
+                    <SelectItem value="Brain">Brain</SelectItem>
+                    <SelectItem value="BookOpen">Book</SelectItem>
+                    <SelectItem value="Users">Users</SelectItem>
+                    <SelectItem value="Target">Target</SelectItem>
+                    <SelectItem value="Lightbulb">Lightbulb</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div>
+                <Label className="text-sm text-gray-300 mb-2 block">Color</Label>
+                <Select
+                  value={newTopic.color}
+                  onValueChange={(value) => setNewTopic({...newTopic, color: value})}
+                >
+                  <SelectTrigger className="bg-black/40 border-white/20 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-black/95 border border-white/20">
+                    {colorOptions.map((color) => (
+                      <SelectItem key={color.value} value={color.value}>
+                        <div className="flex items-center gap-2">
+                          <div className={`w-4 h-4 rounded ${color.value}`}></div>
+                          {color.label}
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            
+            <div>
+              <Label className="text-sm text-gray-300 mb-2 block">Category</Label>
+              <Select
+                value={newTopic.category}
+                onValueChange={(value: 'interview-prep' | 'career-growth') => setNewTopic({...newTopic, category: value})}
+              >
+                <SelectTrigger className="bg-black/40 border-white/20 text-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-black/95 border border-white/20">
+                  <SelectItem value="interview-prep">Interview Prep</SelectItem>
+                  <SelectItem value="career-growth">Career Growth</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="flex justify-end gap-2 pt-4">
+              <Button
+                variant="outline"
+                onClick={() => setIsCreateDialogOpen(false)}
+                className="border-white/20 text-white hover:bg-white/10"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleCreateTopic}
+                className="bg-orange-500 hover:bg-orange-600"
+              >
+                Create Topic
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
