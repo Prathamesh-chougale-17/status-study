@@ -3,11 +3,10 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
-import { Plus, BookOpen, Code, Brain, Users, Target, Lightbulb, Calendar, TrendingUp, RefreshCw, AlertCircle } from 'lucide-react';
+import { Plus, BookOpen, Code, Brain, Users, Target, Lightbulb, RefreshCw, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
-import { StudyTopic, Progress as ProgressType } from '@/lib/types';
+import { StudyTopic } from '@/lib/types';
 
 const defaultTopics: StudyTopic[] = [
   {
@@ -91,13 +90,10 @@ const iconMap = {
   Users,
   Target,
   Lightbulb,
-  Calendar,
-  TrendingUp,
 };
 
 export default function Home() {
   const [topics, setTopics] = useState<StudyTopic[]>([]);
-  const [progress, setProgress] = useState<ProgressType | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -110,11 +106,8 @@ export default function Home() {
       setLoading(true);
       setError(null);
       
-      // Fetch topics and progress in parallel
-      const [topicsResponse, progressResponse] = await Promise.all([
-        fetch('/api/topics'),
-        fetch('/api/progress')
-      ]);
+      // Fetch topics
+      const topicsResponse = await fetch('/api/topics');
 
       if (topicsResponse.ok) {
         const topicsData = await topicsResponse.json();
@@ -123,43 +116,10 @@ export default function Home() {
         console.error('Failed to fetch topics');
         setTopics(defaultTopics); // Fallback to default topics
       }
-
-      if (progressResponse.ok) {
-        const progressData = await progressResponse.json();
-        setProgress(progressData);
-      } else {
-        console.error('Failed to fetch progress');
-        // Set default progress if API fails
-        const now = new Date();
-        setProgress({
-          year: now.getFullYear(),
-          month: now.getMonth() + 1,
-          week: Math.ceil(now.getDate() / 7),
-          day: now.getDate(),
-          yearProgress: 0,
-          monthProgress: 0,
-          weekProgress: 0,
-          dayProgress: 0,
-          updatedAt: new Date(),
-        });
-      }
     } catch (error) {
       console.error('Error fetching data:', error);
       setError('Failed to load data. Using default topics.');
       setTopics(defaultTopics);
-      // Set default progress on error
-      const now = new Date();
-      setProgress({
-        year: now.getFullYear(),
-        month: now.getMonth() + 1,
-        week: Math.ceil(now.getDate() / 7),
-        day: now.getDate(),
-        yearProgress: 0,
-        monthProgress: 0,
-        weekProgress: 0,
-        dayProgress: 0,
-        updatedAt: new Date(),
-      });
     } finally {
       setLoading(false);
     }
@@ -229,12 +189,8 @@ export default function Home() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span>Progress</span>
-                <span>{topic.progress}%</span>
-              </div>
-              <Progress value={topic.progress} className="h-2" />
+            <div className="text-sm text-gray-600 dark:text-gray-300">
+              {topic.resources.length} resources available
             </div>
           </CardContent>
         </Card>
@@ -285,9 +241,7 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Main Content */}
-          <div className="lg:col-span-3 space-y-8">
+        <div className="space-y-8">
             {/* Interview Prep Section */}
             <section>
               <div className="flex items-center justify-between mb-6">
@@ -331,70 +285,6 @@ export default function Home() {
                 ))}
               </div>
             </section>
-          </div>
-
-          {/* Sidebar */}
-          <div className="space-y-6">
-            {/* Progress Overview */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5" />
-                  Progress Overview
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {progress && (
-                  <>
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span>Year</span>
-                        <span>{progress.yearProgress}%</span>
-                      </div>
-                      <Progress value={progress.yearProgress} className="h-2" />
-                    </div>
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span>Month</span>
-                        <span>{progress.monthProgress}%</span>
-                      </div>
-                      <Progress value={progress.monthProgress} className="h-2" />
-                    </div>
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span>Week</span>
-                        <span>{progress.weekProgress}%</span>
-                      </div>
-                      <Progress value={progress.weekProgress} className="h-2" />
-                    </div>
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span>Day</span>
-                        <span>{progress.dayProgress}%</span>
-                      </div>
-                      <Progress value={progress.dayProgress} className="h-2" />
-                    </div>
-                  </>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Calendar */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Calendar className="h-5 w-5" />
-                  September 2025
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-blue-600">21</div>
-                  <div className="text-sm text-gray-600 dark:text-gray-300">Today</div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
         </div>
       </div>
     </div>

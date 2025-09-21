@@ -286,9 +286,7 @@ export default function TopicPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Main Content */}
-          <div className="lg:col-span-3">
+        <div>
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">
                 Resources ({topic.resources.length})
@@ -423,47 +421,6 @@ export default function TopicPage() {
                 ))}
               </div>
             )}
-          </div>
-
-          {/* Sidebar */}
-          <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Topic Stats</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-blue-600">
-                    {topic.resources.length}
-                  </div>
-                  <div className="text-sm text-gray-600 dark:text-gray-300">
-                    Total Resources
-                  </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>Completed</span>
-                    <span>
-                      {topic.resources.filter(r => r.status === 'completed').length}
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span>In Progress</span>
-                    <span>
-                      {topic.resources.filter(r => r.status === 'in-progress').length}
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span>Not Started</span>
-                    <span>
-                      {topic.resources.filter(r => r.status === 'not-started').length}
-                    </span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
         </div>
       </div>
     </div>
