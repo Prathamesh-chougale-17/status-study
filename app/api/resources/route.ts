@@ -9,6 +9,7 @@ export async function POST(request: NextRequest) {
     const { topicId, ...resourceData } = body;
     
     const resource: StudyResource = {
+      _id: new ObjectId().toString(),
       ...resourceData,
       status: resourceData.status || 'not-started',
       priority: resourceData.priority || 'medium',

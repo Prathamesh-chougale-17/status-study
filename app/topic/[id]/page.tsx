@@ -15,7 +15,9 @@ import { StudyTopic, StudyResource, Subtopic } from '@/lib/types';
 import ResourceCard from '@/components/ResourceCard';
 import ResourceCardSkeleton from '@/components/ResourceCardSkeleton';
 import SubtopicCard from '@/components/SubtopicCard';
+import SubtopicCardSkeleton from '@/components/SubtopicCardSkeleton';
 import { ThemeToggle } from '@/components/theme-toggle';
+import { toast } from 'sonner';
 
 const iconMap = {
   Code: '💻',
@@ -110,65 +112,117 @@ export default function TopicPage() {
 
   const handleUpdateResourceStatus = async (resourceId: string, newStatus: string) => {
     try {
-      // This would require a separate API endpoint for updating individual resources
-      // For now, we'll just update the local state
-      if (topic) {
-        const updatedResources = topic.resources.map(resource =>
-          resource._id === resourceId ? { ...resource, status: newStatus as any } : resource
-        );
-        setTopic({ ...topic, resources: updatedResources });
+      const response = await fetch(`/api/resources/${resourceId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          status: newStatus,
+        }),
+      });
+
+      if (response.ok) {
+        // Update local state
+        if (topic) {
+          const updatedResources = topic.resources.map(resource =>
+            resource._id === resourceId ? { ...resource, status: newStatus as any } : resource
+          );
+          setTopic({ ...topic, resources: updatedResources });
+        }
+        toast.success('Resource status updated successfully');
+      } else {
+        toast.error('Failed to update resource status');
       }
     } catch (error) {
       console.error('Error updating resource status:', error);
+      toast.error('Failed to update resource status');
     }
   };
 
   const handleUpdateResourceNotes = async (resourceId: string, newNotes: string) => {
     try {
-      // This would require a separate API endpoint for updating individual resources
-      // For now, we'll just update the local state
-      if (topic) {
-        const updatedResources = topic.resources.map(resource =>
-          resource._id === resourceId ? { ...resource, notes: newNotes } : resource
-        );
-        setTopic({ ...topic, resources: updatedResources });
+      const response = await fetch(`/api/resources/${resourceId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          notes: newNotes,
+        }),
+      });
+
+      if (response.ok) {
+        // Update local state
+        if (topic) {
+          const updatedResources = topic.resources.map(resource =>
+            resource._id === resourceId ? { ...resource, notes: newNotes } : resource
+          );
+          setTopic({ ...topic, resources: updatedResources });
+        }
+        toast.success('Resource notes updated successfully');
+      } else {
+        toast.error('Failed to update resource notes');
       }
     } catch (error) {
       console.error('Error updating resource notes:', error);
+      toast.error('Failed to update resource notes');
     }
   };
 
   const handleUpdateResource = async (resourceId: string, updatedResource: Partial<StudyResource>) => {
     try {
-      // This would require a separate API endpoint for updating individual resources
-      // For now, we'll just update the local state
-      if (topic) {
-        const updatedResources = topic.resources.map(resource =>
-          resource._id === resourceId ? { ...resource, ...updatedResource } : resource
-        );
-        setTopic({ ...topic, resources: updatedResources });
+      const response = await fetch(`/api/resources/${resourceId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedResource),
+      });
+
+      if (response.ok) {
+        // Update local state
+        if (topic) {
+          const updatedResources = topic.resources.map(resource =>
+            resource._id === resourceId ? { ...resource, ...updatedResource } : resource
+          );
+          setTopic({ ...topic, resources: updatedResources });
+        }
+        toast.success('Resource updated successfully');
+      } else {
+        toast.error('Failed to update resource');
       }
     } catch (error) {
       console.error('Error updating resource:', error);
+      toast.error('Failed to update resource');
     }
   };
 
   const handleDeleteResource = async (resourceId: string) => {
     try {
-      // This would require a separate API endpoint for deleting individual resources
-      // For now, we'll just update the local state
-      if (topic) {
-        const updatedResources = topic.resources.filter(resource => resource._id !== resourceId);
-        setTopic({ ...topic, resources: updatedResources });
+      const response = await fetch(`/api/resources/${resourceId}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        // Update local state
+        if (topic) {
+          const updatedResources = topic.resources.filter(resource => resource._id !== resourceId);
+          setTopic({ ...topic, resources: updatedResources });
+        }
+        toast.success('Resource deleted successfully');
+      } else {
+        toast.error('Failed to delete resource');
       }
     } catch (error) {
       console.error('Error deleting resource:', error);
+      toast.error('Failed to delete resource');
     }
   };
 
   const handleAddSubtopic = async () => {
     if (!newSubtopic.title.trim()) {
-      alert('Please enter a subtopic title');
+      toast.error('Please enter a subtopic title');
       return;
     }
     
@@ -191,12 +245,13 @@ export default function TopicPage() {
         await fetchTopic(); // Refresh the topic data
         setIsAddSubtopicDialogOpen(false);
         setNewSubtopic({ title: '', description: '' });
+        toast.success('Subtopic created successfully');
       } else {
-        alert('Failed to create subtopic');
+        toast.error('Failed to create subtopic');
       }
     } catch (error) {
       console.error('Error adding subtopic:', error);
-      alert('Failed to create subtopic');
+      toast.error('Failed to create subtopic');
     }
   };
 
@@ -212,12 +267,13 @@ export default function TopicPage() {
 
       if (response.ok) {
         await fetchTopic(); // Refresh the topic data
+        toast.success('Subtopic updated successfully');
       } else {
-        alert('Failed to update subtopic');
+        toast.error('Failed to update subtopic');
       }
     } catch (error) {
       console.error('Error updating subtopic:', error);
-      alert('Failed to update subtopic');
+      toast.error('Failed to update subtopic');
     }
   };
 
@@ -229,12 +285,13 @@ export default function TopicPage() {
 
       if (response.ok) {
         await fetchTopic(); // Refresh the topic data
+        toast.success('Subtopic deleted successfully');
       } else {
-        alert('Failed to delete subtopic');
+        toast.error('Failed to delete subtopic');
       }
     } catch (error) {
       console.error('Error deleting subtopic:', error);
-      alert('Failed to delete subtopic');
+      toast.error('Failed to delete subtopic');
     }
   };
 
@@ -271,29 +328,47 @@ export default function TopicPage() {
           {/* Header */}
           <div className="mb-8">
             <div className="flex items-center justify-between mb-4">
-              <div className="h-10 w-32 bg-white/10 rounded animate-pulse"></div>
-              <div className="h-9 w-20 bg-white/10 rounded animate-pulse"></div>
+              <div className="h-10 w-32 bg-muted rounded animate-pulse"></div>
+              <div className="flex items-center gap-2">
+                <div className="h-9 w-20 bg-muted rounded animate-pulse"></div>
+                <div className="h-9 w-20 bg-muted rounded animate-pulse"></div>
+              </div>
             </div>
             
             <div className="flex items-center gap-4">
-              <div className="h-16 w-16 bg-white/10 rounded animate-pulse"></div>
+              <div className="h-16 w-16 bg-muted rounded-xl animate-pulse"></div>
               <div className="space-y-2">
-                <div className="h-8 w-64 bg-white/10 rounded animate-pulse"></div>
-                <div className="h-4 w-96 bg-white/10 rounded animate-pulse"></div>
+                <div className="h-8 w-64 bg-muted rounded animate-pulse"></div>
+                <div className="h-4 w-96 bg-muted rounded animate-pulse"></div>
               </div>
             </div>
           </div>
 
-          <div>
-            <div className="flex items-center justify-between mb-6">
-              <div className="h-7 w-48 bg-white/10 rounded animate-pulse"></div>
-              <div className="h-10 w-32 bg-white/10 rounded animate-pulse"></div>
+          <div className="space-y-8">
+            {/* Subtopics Section Skeleton */}
+            <div>
+              <div className="flex items-center justify-between mb-6">
+                <div className="h-7 w-48 bg-muted rounded animate-pulse"></div>
+                <div className="h-10 w-32 bg-muted rounded animate-pulse"></div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                {Array.from({ length: 3 }).map((_, index) => (
+                  <SubtopicCardSkeleton key={index} />
+                ))}
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-              {Array.from({ length: 6 }).map((_, index) => (
-                <ResourceCardSkeleton key={index} />
-              ))}
+            {/* Resources Section Skeleton */}
+            <div>
+              <div className="flex items-center justify-between mb-6">
+                <div className="h-7 w-48 bg-muted rounded animate-pulse"></div>
+                <div className="h-10 w-32 bg-muted rounded animate-pulse"></div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                {Array.from({ length: 6 }).map((_, index) => (
+                  <ResourceCardSkeleton key={index} />
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -398,9 +473,9 @@ export default function TopicPage() {
                     Add Subtopic
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-2xl bg-background border border-border">
+                <DialogContent className="max-w-2xl bg-background border border-border backdrop-blur-md">
                   <DialogHeader>
-                    <DialogTitle className="text-foreground">Add New Subtopic</DialogTitle>
+                    <DialogTitle className="text-foreground text-xl">Add New Subtopic</DialogTitle>
                     <DialogDescription className="text-muted-foreground">
                       Create a new subtopic for detailed note-taking and link organization.
                     </DialogDescription>
@@ -424,7 +499,7 @@ export default function TopicPage() {
                         id="subtopic-description"
                         value={newSubtopic.description}
                         onChange={(e) => setNewSubtopic({ ...newSubtopic, description: e.target.value })}
-                        className="bg-background border-border text-foreground"
+                        className="bg-background border-border text-foreground resize-none"
                         placeholder="Brief description of this subtopic"
                         rows={3}
                       />
@@ -449,11 +524,16 @@ export default function TopicPage() {
 
             {(!topic.subtopics || topic.subtopics.length === 0) ? (
               <Card className="bg-card/50 backdrop-blur-sm border border-border">
-                <CardContent className="text-center py-12">
+                <CardContent className="text-center py-16">
                   <div className="text-muted-foreground">
-                    <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                    <h3 className="text-lg font-medium mb-2 text-foreground">No subtopics yet</h3>
-                    <p className="text-sm">Create subtopics to organize detailed notes and links for this topic.</p>
+                    <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-muted/50 flex items-center justify-center">
+                      <FileText className="h-8 w-8 opacity-60" />
+                    </div>
+                    <h3 className="text-xl font-semibold mb-3 text-foreground">No subtopics yet</h3>
+                    <p className="text-sm max-w-md mx-auto leading-relaxed">
+                      Create subtopics to organize detailed notes and links for this topic. 
+                      Each subtopic can contain rich notes and helpful resources.
+                    </p>
                   </div>
                 </CardContent>
               </Card>
@@ -485,57 +565,61 @@ export default function TopicPage() {
                     Add Resource
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-2xl">
+                <DialogContent className="max-w-2xl bg-background border border-border backdrop-blur-md">
                   <DialogHeader>
-                    <DialogTitle>Add New Resource</DialogTitle>
-                    <DialogDescription>
+                    <DialogTitle className="text-foreground text-xl">Add New Resource</DialogTitle>
+                    <DialogDescription className="text-muted-foreground">
                       Add a new study resource to this topic.
                     </DialogDescription>
                   </DialogHeader>
                   
                   <div className="space-y-4">
                     <div>
-                      <Label htmlFor="title">Title</Label>
+                      <Label htmlFor="title" className="text-sm text-muted-foreground mb-2 block">Title</Label>
                       <Input
                         id="title"
                         value={newResource.title}
                         onChange={(e) => setNewResource({ ...newResource, title: e.target.value })}
+                        className="bg-background border-border text-foreground"
                         placeholder="Resource title"
                       />
                     </div>
                     
                     <div>
-                      <Label htmlFor="description">Description</Label>
+                      <Label htmlFor="description" className="text-sm text-muted-foreground mb-2 block">Description</Label>
                       <Textarea
                         id="description"
                         value={newResource.description}
                         onChange={(e) => setNewResource({ ...newResource, description: e.target.value })}
+                        className="bg-background border-border text-foreground resize-none"
                         placeholder="Brief description of the resource"
+                        rows={3}
                       />
                     </div>
                     
                     <div>
-                      <Label htmlFor="url">URL (Optional)</Label>
+                      <Label htmlFor="url" className="text-sm text-muted-foreground mb-2 block">URL (Optional)</Label>
                       <Input
                         id="url"
                         type="url"
                         value={newResource.url}
                         onChange={(e) => setNewResource({ ...newResource, url: e.target.value })}
+                        className="bg-background border-border text-foreground"
                         placeholder="https://example.com"
                       />
                     </div>
                     
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="type">Type</Label>
+                        <Label htmlFor="type" className="text-sm text-muted-foreground mb-2 block">Type</Label>
                         <Select
                           value={newResource.type}
                           onValueChange={(value) => setNewResource({ ...newResource, type: value as any })}
                         >
-                          <SelectTrigger>
+                          <SelectTrigger className="bg-background border-border text-foreground">
                             <SelectValue />
                           </SelectTrigger>
-                          <SelectContent>
+                          <SelectContent className="bg-background border-border">
                             <SelectItem value="video">Video</SelectItem>
                             <SelectItem value="article">Article</SelectItem>
                             <SelectItem value="book">Book</SelectItem>
@@ -547,15 +631,15 @@ export default function TopicPage() {
                       </div>
                       
                       <div>
-                        <Label htmlFor="priority">Priority</Label>
+                        <Label htmlFor="priority" className="text-sm text-muted-foreground mb-2 block">Priority</Label>
                         <Select
                           value={newResource.priority}
                           onValueChange={(value) => setNewResource({ ...newResource, priority: value as any })}
                         >
-                          <SelectTrigger>
+                          <SelectTrigger className="bg-background border-border text-foreground">
                             <SelectValue />
                           </SelectTrigger>
-                          <SelectContent>
+                          <SelectContent className="bg-background border-border">
                             <SelectItem value="low">Low</SelectItem>
                             <SelectItem value="medium">Medium</SelectItem>
                             <SelectItem value="high">High</SelectItem>
@@ -565,23 +649,26 @@ export default function TopicPage() {
                     </div>
                     
                     <div>
-                      <Label htmlFor="notes">Notes (Optional)</Label>
+                      <Label htmlFor="notes" className="text-sm text-muted-foreground mb-2 block">Notes (Optional)</Label>
                       <Textarea
                         id="notes"
                         value={newResource.notes}
                         onChange={(e) => setNewResource({ ...newResource, notes: e.target.value })}
+                        className="bg-background border-border text-foreground resize-none"
                         placeholder="Additional notes about this resource"
+                        rows={3}
                       />
                     </div>
                     
-                    <div className="flex justify-end gap-2">
+                    <div className="flex justify-end gap-2 pt-4">
                       <Button
                         variant="outline"
                         onClick={() => setIsAddDialogOpen(false)}
+                        className="border-border text-foreground hover:bg-muted"
                       >
                         Cancel
                       </Button>
-                      <Button onClick={handleAddResource}>
+                      <Button onClick={handleAddResource} className="bg-orange-500 hover:bg-orange-600 text-white">
                         Add Resource
                       </Button>
                     </div>
@@ -591,12 +678,17 @@ export default function TopicPage() {
             </div>
 
             {topic.resources.length === 0 ? (
-              <Card className="bg-black/40 backdrop-blur-sm border border-white/10">
-                <CardContent className="text-center py-12">
-                  <div className="text-gray-400">
-                    <BookOpen className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                    <h3 className="text-lg font-medium mb-2 text-foreground">No resources yet</h3>
-                    <p className="text-sm">Add your first resource to get started with this topic.</p>
+              <Card className="bg-card/50 backdrop-blur-sm border border-border">
+                <CardContent className="text-center py-16">
+                  <div className="text-muted-foreground">
+                    <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-muted/50 flex items-center justify-center">
+                      <BookOpen className="h-8 w-8 opacity-60" />
+                    </div>
+                    <h3 className="text-xl font-semibold mb-3 text-foreground">No resources yet</h3>
+                    <p className="text-sm max-w-md mx-auto leading-relaxed">
+                      Add your first resource to get started with this topic. 
+                      Resources can be articles, videos, books, or any study material.
+                    </p>
                   </div>
                 </CardContent>
               </Card>

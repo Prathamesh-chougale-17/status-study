@@ -207,9 +207,78 @@ export default function SubtopicPage() {
   if (loading) {
     return (
       <div className="min-h-screen w-full bg-background relative text-foreground">
-        <div className="container mx-auto px-4 py-8">
-          <div className="flex items-center justify-center h-64">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
+        {/* Diagonal Grid with Orange Glow - Dark Mode */}
+        <div
+          className="absolute inset-0 z-0 pointer-events-none dark:block hidden"
+          style={{
+            backgroundImage: `
+       repeating-linear-gradient(45deg, rgba(255, 140, 0, 0.12) 0, rgba(255, 140, 0, 0.12) 1px, transparent 1px, transparent 22px),
+            repeating-linear-gradient(-45deg, rgba(255, 69, 0, 0.08) 0, rgba(255, 69, 0, 0.08) 1px, transparent 1px, transparent 22px)
+            `,
+            backgroundSize: "44px 44px",
+          }}
+        />
+        {/* Light Mode Grid */}
+        <div
+          className="absolute inset-0 z-0 pointer-events-none dark:hidden block"
+          style={{
+            backgroundImage: `
+       repeating-linear-gradient(45deg, rgba(255, 140, 0, 0.06) 0, rgba(255, 140, 0, 0.06) 1px, transparent 1px, transparent 22px),
+            repeating-linear-gradient(-45deg, rgba(255, 69, 0, 0.04) 0, rgba(255, 69, 0, 0.04) 1px, transparent 1px, transparent 22px)
+            `,
+            backgroundSize: "44px 44px",
+          }}
+        />
+        <div className="container mx-auto px-4 py-8 relative z-10">
+          {/* Header Skeleton */}
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <div className="h-10 w-32 bg-muted rounded animate-pulse"></div>
+              <div className="flex items-center gap-2">
+                <div className="h-9 w-20 bg-muted rounded animate-pulse"></div>
+                <div className="h-9 w-20 bg-muted rounded animate-pulse"></div>
+              </div>
+            </div>
+            
+            <div className="space-y-4">
+              <div className="h-10 w-96 bg-muted rounded animate-pulse"></div>
+              <div className="h-6 w-3/4 bg-muted rounded animate-pulse"></div>
+            </div>
+          </div>
+
+          {/* Content Skeleton */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Notes Section Skeleton */}
+            <div className="lg:col-span-2">
+              <div className="bg-card/50 backdrop-blur-sm border border-border rounded-lg p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="h-6 w-16 bg-muted rounded animate-pulse"></div>
+                  <div className="h-8 w-24 bg-muted rounded animate-pulse"></div>
+                </div>
+                <div className="space-y-3">
+                  <div className="h-4 w-full bg-muted rounded animate-pulse"></div>
+                  <div className="h-4 w-5/6 bg-muted rounded animate-pulse"></div>
+                  <div className="h-4 w-4/5 bg-muted rounded animate-pulse"></div>
+                  <div className="h-4 w-full bg-muted rounded animate-pulse"></div>
+                  <div className="h-4 w-3/4 bg-muted rounded animate-pulse"></div>
+                </div>
+              </div>
+            </div>
+
+            {/* Links Section Skeleton */}
+            <div>
+              <div className="bg-card/50 backdrop-blur-sm border border-border rounded-lg p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="h-6 w-12 bg-muted rounded animate-pulse"></div>
+                  <div className="h-8 w-20 bg-muted rounded animate-pulse"></div>
+                </div>
+                <div className="space-y-3">
+                  <div className="h-16 w-full bg-muted rounded animate-pulse"></div>
+                  <div className="h-16 w-full bg-muted rounded animate-pulse"></div>
+                  <div className="h-16 w-full bg-muted rounded animate-pulse"></div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -420,10 +489,25 @@ export default function SubtopicPage() {
                      className="min-h-[400px]"
                    />
                  ) : (
-                   <div 
-                     className="prose prose-invert max-w-none min-h-[400px] p-4 bg-muted/20 rounded-lg border border-border"
-                     dangerouslySetInnerHTML={{ __html: subtopic.notes || '<p class="text-muted-foreground italic">No notes added yet. Click "Edit Notes" to add your notes.</p>' }}
-                   />
+                   <div className="min-h-[400px] p-6 bg-muted/20 rounded-lg border border-border">
+                     {subtopic.notes ? (
+                       <div 
+                         className="prose prose-invert max-w-none"
+                         dangerouslySetInnerHTML={{ __html: subtopic.notes }}
+                       />
+                     ) : (
+                       <div className="text-center py-16">
+                         <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-muted/50 flex items-center justify-center">
+                           <Edit2 className="h-8 w-8 opacity-60" />
+                         </div>
+                         <h3 className="text-xl font-semibold mb-3 text-foreground">No notes added yet</h3>
+                         <p className="text-muted-foreground text-sm max-w-md mx-auto leading-relaxed">
+                           Click "Edit Notes" to start writing your notes. You can use rich text formatting, 
+                           add links, and organize your thoughts with headings and lists.
+                         </p>
+                       </div>
+                     )}
+                   </div>
                  )}
                </CardContent>
              </Card>
@@ -447,9 +531,9 @@ export default function SubtopicPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 {showAddLink && (
-                  <div className="space-y-3 p-4 bg-muted/20 rounded-lg border border-border">
+                  <div className="space-y-4 p-6 bg-muted/20 rounded-lg border border-border">
                     <div>
-                      <Label htmlFor="link-title" className="text-sm text-muted-foreground mb-1 block">Title</Label>
+                      <Label htmlFor="link-title" className="text-sm text-muted-foreground mb-2 block">Title</Label>
                       <Input
                         id="link-title"
                         value={newLink.title}
@@ -459,7 +543,7 @@ export default function SubtopicPage() {
                       />
                     </div>
                     <div>
-                      <Label htmlFor="link-url" className="text-sm text-muted-foreground mb-1 block">URL</Label>
+                      <Label htmlFor="link-url" className="text-sm text-muted-foreground mb-2 block">URL</Label>
                       <Input
                         id="link-url"
                         value={newLink.url}
@@ -469,21 +553,22 @@ export default function SubtopicPage() {
                       />
                     </div>
                     <div>
-                      <Label htmlFor="link-description" className="text-sm text-muted-foreground mb-1 block">Description (Optional)</Label>
+                      <Label htmlFor="link-description" className="text-sm text-muted-foreground mb-2 block">Description (Optional)</Label>
                       <Textarea
                         id="link-description"
                         value={newLink.description}
                         onChange={(e) => setNewLink({...newLink, description: e.target.value})}
-                        className="bg-background border-border text-foreground"
+                        className="bg-background border-border text-foreground resize-none"
                         placeholder="Brief description"
                         rows={2}
                       />
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 pt-2">
                       <Button
                         size="sm"
                         onClick={handleAddLink}
                         disabled={!newLink.title || !newLink.url}
+                        className="bg-orange-500 hover:bg-orange-600 text-white"
                       >
                         Add Link
                       </Button>
@@ -494,6 +579,7 @@ export default function SubtopicPage() {
                           setShowAddLink(false);
                           setNewLink({ title: '', url: '', description: '' });
                         }}
+                        className="border-border text-foreground hover:bg-muted"
                       >
                         Cancel
                       </Button>
@@ -503,34 +589,40 @@ export default function SubtopicPage() {
 
                 <div className="space-y-3">
                   {subtopic.links.length === 0 ? (
-                    <p className="text-muted-foreground text-sm italic">No links added yet.</p>
+                    <div className="text-center py-8">
+                      <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-muted/50 flex items-center justify-center">
+                        <ExternalLink className="h-6 w-6 opacity-60" />
+                      </div>
+                      <p className="text-muted-foreground text-sm">No links added yet.</p>
+                      <p className="text-muted-foreground text-xs mt-1">Click "Add Link" to get started.</p>
+                    </div>
                   ) : (
                     subtopic.links.map((link) => (
-                      <div key={link._id} className="p-3 bg-muted/20 rounded-lg border border-border">
+                      <div key={link._id} className="p-4 bg-muted/20 rounded-lg border border-border hover:bg-muted/30 transition-colors">
                         <div className="flex items-start justify-between">
                           <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1">
+                            <div className="flex items-center gap-2 mb-2">
                               <ExternalLink className="h-4 w-4 text-orange-500 flex-shrink-0" />
                               <a
                                 href={link.url}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-orange-500 hover:text-orange-400 font-medium truncate"
+                                className="text-orange-500 hover:text-orange-400 font-medium truncate transition-colors"
                               >
                                 {link.title}
                               </a>
                             </div>
                             {link.description && (
-                              <p className="text-muted-foreground text-sm">{link.description}</p>
+                              <p className="text-muted-foreground text-sm leading-relaxed">{link.description}</p>
                             )}
                           </div>
                           <Button
                             size="sm"
                             variant="ghost"
                             onClick={() => handleDeleteLink(link._id!)}
-                            className="h-6 w-6 p-0 hover:bg-destructive/20 ml-2"
+                            className="h-8 w-8 p-0 hover:bg-destructive/20 ml-2 flex-shrink-0"
                           >
-                            <Trash2 className="h-3 w-3 text-destructive" />
+                            <Trash2 className="h-4 w-4 text-destructive" />
                           </Button>
                         </div>
                       </div>

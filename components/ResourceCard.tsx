@@ -44,6 +44,14 @@ interface ResourceCardProps {
 
 export default function ResourceCard({ resource, onStatusChange, onNotesChange, onResourceUpdate, onResourceDelete }: ResourceCardProps) {
   const TypeIcon = resourceTypeIcons[resource.type] || FileText;
+  
+  // Debug logging
+  console.log('ResourceCard - resource._id:', resource._id);
+  console.log('ResourceCard - resource object keys:', Object.keys(resource));
+  
+  // Temporary fix: Generate ID if missing
+  const resourceId = resource._id || `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  console.log('ResourceCard - using resourceId:', resourceId);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editedResource, setEditedResource] = useState({
     title: resource.title,
@@ -89,7 +97,7 @@ export default function ResourceCard({ resource, onStatusChange, onNotesChange, 
         ...editedResource,
         tags: editedResource.tags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0),
       };
-      onResourceUpdate(resource._id!, updatedResource);
+      onResourceUpdate(resourceId, updatedResource);
     }
     setIsDialogOpen(false);
   };
@@ -124,7 +132,7 @@ export default function ResourceCard({ resource, onStatusChange, onNotesChange, 
 
   const handleDeleteResource = () => {
     if (onResourceDelete) {
-      onResourceDelete(resource._id!);
+      onResourceDelete(resourceId);
     }
   };
   
@@ -245,7 +253,9 @@ export default function ResourceCard({ resource, onStatusChange, onNotesChange, 
                 <span className="text-xs text-muted-foreground font-medium">Status</span>
                 <Select
                   value={resource.status}
-                  onValueChange={(value) => onStatusChange(resource._id!, value)}
+                  onValueChange={(value) => {
+                    onStatusChange(resourceId, value);
+                  }}
                 >
                   <SelectTrigger className="w-32 h-5 bg-background border border-border text-foreground hover:bg-muted hover:border-border/80 transition-all duration-200 text-xs font-medium rounded shadow-sm">
                     <SelectValue />
