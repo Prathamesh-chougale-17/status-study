@@ -21,6 +21,7 @@ export async function POST(request: NextRequest) {
     const topic: StudyTopic = {
       ...body,
       resources: body.resources || [],
+      subtopics: body.subtopics || [],
       progress: body.progress || 0,
       createdAt: new Date(),
       updatedAt: new Date(),

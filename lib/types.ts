@@ -6,6 +6,7 @@ export interface StudyTopic {
   color: string;
   category: 'interview-prep' | 'career-growth';
   resources: StudyResource[];
+  subtopics: Subtopic[];
   progress: number;
   createdAt: Date;
   updatedAt: Date;
@@ -23,6 +24,25 @@ export interface StudyResource {
   notes?: string;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface Subtopic {
+  _id?: string;
+  title: string;
+  description: string;
+  topicId: string;
+  notes: string; // HTML content from Quill editor
+  links: SubtopicLink[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface SubtopicLink {
+  _id?: string;
+  title: string;
+  url: string;
+  description?: string;
+  createdAt: Date;
 }
 
 export interface Progress {

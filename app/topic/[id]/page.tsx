@@ -10,10 +10,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Plus, BookOpen, RefreshCw } from 'lucide-react';
-import { StudyTopic, StudyResource } from '@/lib/types';
+import { ArrowLeft, Plus, BookOpen, RefreshCw, FileText } from 'lucide-react';
+import { StudyTopic, StudyResource, Subtopic } from '@/lib/types';
 import ResourceCard from '@/components/ResourceCard';
 import ResourceCardSkeleton from '@/components/ResourceCardSkeleton';
+import SubtopicCard from '@/components/SubtopicCard';
 import { ThemeToggle } from '@/components/theme-toggle';
 
 const iconMap = {
@@ -32,6 +33,7 @@ export default function TopicPage() {
   const [topic, setTopic] = useState<StudyTopic | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isAddSubtopicDialogOpen, setIsAddSubtopicDialogOpen] = useState(false);
   const [newResource, setNewResource] = useState<Partial<StudyResource>>({
     title: '',
     description: '',
@@ -41,6 +43,10 @@ export default function TopicPage() {
     priority: 'medium',
     tags: [],
     notes: '',
+  });
+  const [newSubtopic, setNewSubtopic] = useState({
+    title: '',
+    description: '',
   });
 
   useEffect(() => {
@@ -157,6 +163,78 @@ export default function TopicPage() {
       }
     } catch (error) {
       console.error('Error deleting resource:', error);
+    }
+  };
+
+  const handleAddSubtopic = async () => {
+    if (!newSubtopic.title.trim()) {
+      alert('Please enter a subtopic title');
+      return;
+    }
+    
+    try {
+      const response = await fetch('/api/subtopics', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          topicId: params.id,
+          title: newSubtopic.title,
+          description: newSubtopic.description,
+          notes: '',
+          links: [],
+        }),
+      });
+
+      if (response.ok) {
+        await fetchTopic(); // Refresh the topic data
+        setIsAddSubtopicDialogOpen(false);
+        setNewSubtopic({ title: '', description: '' });
+      } else {
+        alert('Failed to create subtopic');
+      }
+    } catch (error) {
+      console.error('Error adding subtopic:', error);
+      alert('Failed to create subtopic');
+    }
+  };
+
+  const handleUpdateSubtopic = async (subtopicId: string, updatedSubtopic: Partial<Subtopic>) => {
+    try {
+      const response = await fetch(`/api/subtopics/${subtopicId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedSubtopic),
+      });
+
+      if (response.ok) {
+        await fetchTopic(); // Refresh the topic data
+      } else {
+        alert('Failed to update subtopic');
+      }
+    } catch (error) {
+      console.error('Error updating subtopic:', error);
+      alert('Failed to update subtopic');
+    }
+  };
+
+  const handleDeleteSubtopic = async (subtopicId: string) => {
+    try {
+      const response = await fetch(`/api/subtopics/${subtopicId}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        await fetchTopic(); // Refresh the topic data
+      } else {
+        alert('Failed to delete subtopic');
+      }
+    } catch (error) {
+      console.error('Error deleting subtopic:', error);
+      alert('Failed to delete subtopic');
     }
   };
 
@@ -305,7 +383,96 @@ export default function TopicPage() {
           </div>
         </div>
 
-        <div>
+        <div className="space-y-8">
+          {/* Subtopics Section */}
+          <div>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-semibold text-foreground">
+                Subtopics ({topic.subtopics?.length || 0})
+              </h2>
+              
+              <Dialog open={isAddSubtopicDialogOpen} onOpenChange={setIsAddSubtopicDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button className="gap-2">
+                    <Plus className="h-4 w-4" />
+                    Add Subtopic
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-2xl bg-background border border-border">
+                  <DialogHeader>
+                    <DialogTitle className="text-foreground">Add New Subtopic</DialogTitle>
+                    <DialogDescription className="text-muted-foreground">
+                      Create a new subtopic for detailed note-taking and link organization.
+                    </DialogDescription>
+                  </DialogHeader>
+                  
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="subtopic-title" className="text-sm text-muted-foreground mb-2 block">Title</Label>
+                      <Input
+                        id="subtopic-title"
+                        value={newSubtopic.title}
+                        onChange={(e) => setNewSubtopic({ ...newSubtopic, title: e.target.value })}
+                        className="bg-background border-border text-foreground"
+                        placeholder="Subtopic title"
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="subtopic-description" className="text-sm text-muted-foreground mb-2 block">Description</Label>
+                      <Textarea
+                        id="subtopic-description"
+                        value={newSubtopic.description}
+                        onChange={(e) => setNewSubtopic({ ...newSubtopic, description: e.target.value })}
+                        className="bg-background border-border text-foreground"
+                        placeholder="Brief description of this subtopic"
+                        rows={3}
+                      />
+                    </div>
+                    
+                    <div className="flex justify-end gap-2">
+                      <Button
+                        variant="outline"
+                        onClick={() => setIsAddSubtopicDialogOpen(false)}
+                        className="border-border text-foreground hover:bg-muted"
+                      >
+                        Cancel
+                      </Button>
+                      <Button onClick={handleAddSubtopic} className="bg-orange-500 hover:bg-orange-600 text-white">
+                        Add Subtopic
+                      </Button>
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
+
+            {(!topic.subtopics || topic.subtopics.length === 0) ? (
+              <Card className="bg-card/50 backdrop-blur-sm border border-border">
+                <CardContent className="text-center py-12">
+                  <div className="text-muted-foreground">
+                    <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                    <h3 className="text-lg font-medium mb-2 text-foreground">No subtopics yet</h3>
+                    <p className="text-sm">Create subtopics to organize detailed notes and links for this topic.</p>
+                  </div>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                {topic.subtopics.map((subtopic) => (
+                  <SubtopicCard 
+                    key={subtopic._id || `subtopic-${subtopic.title}`} 
+                    subtopic={subtopic} 
+                    onSubtopicUpdate={handleUpdateSubtopic}
+                    onSubtopicDelete={handleDeleteSubtopic}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Resources Section */}
+          <div>
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-semibold text-foreground">
                 Resources ({topic.resources.length})
@@ -447,6 +614,7 @@ export default function TopicPage() {
                  ))}
                </div>
              )}
+          </div>
         </div>
       </div>
     </div>
