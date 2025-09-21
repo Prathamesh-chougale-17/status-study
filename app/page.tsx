@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Plus, BookOpen, Code, Brain, Users, Target, Lightbulb, RefreshCw, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 import { StudyTopic } from '@/lib/types';
+import TopicCardSkeleton from '@/components/TopicCardSkeleton';
 
 const defaultTopics: StudyTopic[] = [
   {
@@ -200,8 +201,69 @@ export default function Home() {
 
   if (loading) {
     return (
-      <div className="min-h-screen w-full bg-[#0f0f0f] flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-orange-500"></div>
+      <div className="min-h-screen w-full bg-[#0f0f0f] relative text-white">
+        {/* Diagonal Grid with Red/Blue Glow */}
+        <div
+          className="absolute inset-0 z-0 pointer-events-none"
+          style={{
+            backgroundImage: `
+       repeating-linear-gradient(45deg, rgba(255, 140, 0, 0.12) 0, rgba(255, 140, 0, 0.12) 1px, transparent 1px, transparent 22px),
+            repeating-linear-gradient(-45deg, rgba(255, 69, 0, 0.08) 0, rgba(255, 69, 0, 0.08) 1px, transparent 1px, transparent 22px)
+            `,
+            backgroundSize: "44px 44px",
+          }}
+        />
+        <div className="container mx-auto px-4 py-8 relative z-10">
+          {/* Header */}
+          <div className="mb-8">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-4xl font-bold text-white mb-2">
+                  Study Dashboard
+                </h1>
+                <p className="text-gray-300">
+                  Organize your interview prep and career growth resources in one place
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-orange-500"></div>
+                <span className="text-sm text-gray-300">Loading...</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-8">
+            {/* Interview Prep Section */}
+            <section>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-semibold text-white">
+                  Interview Prep
+                </h2>
+                <div className="h-9 w-24 bg-white/10 rounded animate-pulse"></div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                {Array.from({ length: 4 }).map((_, index) => (
+                  <TopicCardSkeleton key={index} />
+                ))}
+              </div>
+            </section>
+
+            {/* Career Growth Section */}
+            <section>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-semibold text-white">
+                  Job & SDE Career Growth
+                </h2>
+                <div className="h-9 w-24 bg-white/10 rounded animate-pulse"></div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                {Array.from({ length: 2 }).map((_, index) => (
+                  <TopicCardSkeleton key={index} />
+                ))}
+              </div>
+            </section>
+          </div>
+        </div>
       </div>
     );
   }

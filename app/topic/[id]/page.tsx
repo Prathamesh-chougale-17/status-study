@@ -10,8 +10,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Plus, ExternalLink, BookOpen, Video, FileText, GraduationCap, Target, MoreHorizontal, Edit, Trash2, RefreshCw } from 'lucide-react';
+import { ArrowLeft, Plus, BookOpen, RefreshCw } from 'lucide-react';
 import { StudyTopic, StudyResource } from '@/lib/types';
+import ResourceCard from '@/components/ResourceCard';
+import ResourceCardSkeleton from '@/components/ResourceCardSkeleton';
 
 const iconMap = {
   Code: '💻',
@@ -22,26 +24,6 @@ const iconMap = {
   Lightbulb: '💡',
 };
 
-const resourceTypeIcons = {
-  video: Video,
-  article: FileText,
-  book: BookOpen,
-  course: GraduationCap,
-  practice: Target,
-  other: FileText,
-};
-
-const statusColors = {
-  'not-started': 'bg-gray-100 text-gray-800',
-  'in-progress': 'bg-yellow-100 text-yellow-800',
-  'completed': 'bg-green-100 text-green-800',
-};
-
-const priorityColors = {
-  low: 'bg-blue-100 text-blue-800',
-  medium: 'bg-orange-100 text-orange-800',
-  high: 'bg-red-100 text-red-800',
-};
 
 export default function TopicPage() {
   const params = useParams();
@@ -140,8 +122,48 @@ export default function TopicPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen w-full bg-[#0f0f0f] flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-orange-500"></div>
+      <div className="min-h-screen w-full bg-[#0f0f0f] relative text-white">
+        {/* Diagonal Grid with Red/Blue Glow */}
+        <div
+          className="absolute inset-0 z-0 pointer-events-none"
+          style={{
+            backgroundImage: `
+       repeating-linear-gradient(45deg, rgba(255, 140, 0, 0.12) 0, rgba(255, 140, 0, 0.12) 1px, transparent 1px, transparent 22px),
+            repeating-linear-gradient(-45deg, rgba(255, 69, 0, 0.08) 0, rgba(255, 69, 0, 0.08) 1px, transparent 1px, transparent 22px)
+            `,
+            backgroundSize: "44px 44px",
+          }}
+        />
+        <div className="container mx-auto px-4 py-8 relative z-10">
+          {/* Header */}
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <div className="h-10 w-32 bg-white/10 rounded animate-pulse"></div>
+              <div className="h-9 w-20 bg-white/10 rounded animate-pulse"></div>
+            </div>
+            
+            <div className="flex items-center gap-4">
+              <div className="h-16 w-16 bg-white/10 rounded animate-pulse"></div>
+              <div className="space-y-2">
+                <div className="h-8 w-64 bg-white/10 rounded animate-pulse"></div>
+                <div className="h-4 w-96 bg-white/10 rounded animate-pulse"></div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div className="flex items-center justify-between mb-6">
+              <div className="h-7 w-48 bg-white/10 rounded animate-pulse"></div>
+              <div className="h-10 w-32 bg-white/10 rounded animate-pulse"></div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+              {Array.from({ length: 6 }).map((_, index) => (
+                <ResourceCardSkeleton key={index} />
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -162,89 +184,6 @@ export default function TopicPage() {
     );
   }
 
-  const ResourceCard = ({ resource }: { resource: StudyResource }) => {
-    const TypeIcon = resourceTypeIcons[resource.type] || FileText;
-    
-    return (
-      <Card className="bg-black/40 backdrop-blur-sm border border-white/10 hover:border-white/20 hover:shadow-2xl hover:shadow-orange-500/10 transition-all duration-300">
-        <CardHeader className="pb-3">
-          <div className="flex items-start justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-orange-500/20 rounded-xl border border-orange-500/30">
-                <TypeIcon className="h-5 w-5 text-orange-400" />
-              </div>
-              <div className="flex-1">
-                <CardTitle className="text-lg text-white">{resource.title}</CardTitle>
-                <CardDescription className="text-sm mt-1 text-gray-300">
-                  {resource.description}
-                </CardDescription>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <Badge className={`${statusColors[resource.status]} bg-white/10 text-white border-white/20`}>
-                {resource.status.replace('-', ' ')}
-              </Badge>
-              <Badge className={`${priorityColors[resource.priority]} bg-white/10 text-white border-white/20`}>
-                {resource.priority}
-              </Badge>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {resource.url && (
-              <div className="flex items-center gap-2">
-                <ExternalLink className="h-4 w-4 text-gray-400" />
-                <a
-                  href={resource.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-orange-400 hover:text-orange-300 text-sm truncate"
-                >
-                  {resource.url}
-                </a>
-              </div>
-            )}
-            
-            {resource.tags.length > 0 && (
-              <div className="flex flex-wrap gap-1">
-                {resource.tags.map((tag, index) => (
-                  <Badge key={index} variant="outline" className="text-xs bg-white/10 text-white border-white/20">
-                    {tag}
-                  </Badge>
-                ))}
-              </div>
-            )}
-
-            <div className="flex items-center gap-2">
-              <Label htmlFor={`status-${resource._id}`} className="text-sm text-gray-300">
-                Status:
-              </Label>
-              <Select
-                value={resource.status}
-                onValueChange={(value) => handleUpdateResourceStatus(resource._id!, value)}
-              >
-                <SelectTrigger className="w-32 h-8 bg-white/10 border-white/20 text-white">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-black/90 border-white/20">
-                  <SelectItem value="not-started">Not Started</SelectItem>
-                  <SelectItem value="in-progress">In Progress</SelectItem>
-                  <SelectItem value="completed">Completed</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {resource.notes && (
-              <div className="text-sm text-gray-300 bg-white/5 border border-white/10 p-3 rounded-lg">
-                {resource.notes}
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-    );
-  };
 
   return (
     <div className="min-h-screen w-full bg-[#0f0f0f] relative text-white">
@@ -425,13 +364,17 @@ export default function TopicPage() {
                   </div>
                 </CardContent>
               </Card>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                {topic.resources.map((resource) => (
-                  <ResourceCard key={resource._id} resource={resource} />
-                ))}
-              </div>
-            )}
+             ) : (
+               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                 {topic.resources.map((resource) => (
+                   <ResourceCard 
+                     key={resource._id} 
+                     resource={resource} 
+                     onStatusChange={handleUpdateResourceStatus}
+                   />
+                 ))}
+               </div>
+             )}
         </div>
       </div>
     </div>
