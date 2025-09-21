@@ -12,7 +12,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { ArrowLeft, Save, Plus, ExternalLink, Trash2, Edit2 } from 'lucide-react';
 import { Subtopic, SubtopicLink } from '@/lib/types';
 import { ThemeToggle } from '@/components/theme-toggle';
-import QuillEditor from '@/components/QuillEditor';
+import NotesEditor from '@/components/NotesEditor';
 
 export default function SubtopicPage() {
   const params = useParams();
@@ -344,7 +344,7 @@ export default function SubtopicPage() {
               </CardHeader>
               <CardContent>
                 {isEditing ? (
-                  <QuillEditor
+                  <NotesEditor
                     value={editedNotes}
                     onChange={setEditedNotes}
                     placeholder="Start writing your notes..."

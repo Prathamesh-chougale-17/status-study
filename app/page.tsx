@@ -285,7 +285,7 @@ export default function Home() {
                 </Button>
               </div>
             </div>
-          </div>
+        </div>
 
         <div className="space-y-8">
             {/* Interview Prep Section */}
