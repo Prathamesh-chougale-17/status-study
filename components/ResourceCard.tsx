@@ -129,21 +129,34 @@ export default function ResourceCard({ resource, onStatusChange }: ResourceCardP
           )}
 
           {onStatusChange && (
-            <div className="flex items-center gap-2 p-2 bg-white/5 rounded-lg border border-white/10">
-              <Label htmlFor={`status-${resource._id}`} className="text-xs text-gray-300 font-medium">
-                Status:
-              </Label>
+            <div className="flex items-center justify-between p-1.5 bg-gradient-to-r from-white/5 to-white/10 rounded-md border border-white/10">
+              <span className="text-xs text-gray-300 font-medium">Status</span>
               <Select
                 value={resource.status}
                 onValueChange={(value) => onStatusChange(resource._id!, value)}
               >
-                <SelectTrigger className="w-28 h-7 bg-white/10 border-white/20 text-white hover:bg-white/20 transition-colors text-xs">
+                <SelectTrigger className="w-32 h-5 bg-black/40 border border-white/20 text-white hover:bg-black/60 hover:border-white/30 transition-all duration-200 text-xs font-medium rounded shadow-sm">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-black/95 border-white/20 backdrop-blur-md">
-                  <SelectItem value="not-started" className="hover:bg-white/10 text-xs">Not Started</SelectItem>
-                  <SelectItem value="in-progress" className="hover:bg-white/10 text-xs">In Progress</SelectItem>
-                  <SelectItem value="completed" className="hover:bg-white/10 text-xs">Completed</SelectItem>
+                <SelectContent className="bg-black/95 border border-white/20 backdrop-blur-md shadow-2xl">
+                  <SelectItem value="not-started" className="hover:bg-white/10 text-xs text-gray-300 focus:bg-white/10 py-1">
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-1.5 h-1.5 bg-gray-400 rounded-full"></div>
+                      Not Started
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="in-progress" className="hover:bg-white/10 text-xs text-yellow-400 focus:bg-white/10 py-1">
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full"></div>
+                      In Progress
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="completed" className="hover:bg-white/10 text-xs text-green-400 focus:bg-white/10 py-1">
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-1.5 h-1.5 bg-green-400 rounded-full"></div>
+                      Completed
+                    </div>
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
