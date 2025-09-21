@@ -4,8 +4,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { ExternalLink, Video, FileText, BookOpen, GraduationCap, Target } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { ExternalLink, Video, FileText, BookOpen, GraduationCap, Target, Edit2, Save, X } from 'lucide-react';
 import { StudyResource } from '@/lib/types';
+import { useState } from 'react';
 
 const resourceTypeIcons = {
   video: Video,
@@ -31,10 +34,13 @@ const priorityColors = {
 interface ResourceCardProps {
   resource: StudyResource;
   onStatusChange?: (resourceId: string, newStatus: string) => void;
+  onNotesChange?: (resourceId: string, newNotes: string) => void;
 }
 
-export default function ResourceCard({ resource, onStatusChange }: ResourceCardProps) {
+export default function ResourceCard({ resource, onStatusChange, onNotesChange }: ResourceCardProps) {
   const TypeIcon = resourceTypeIcons[resource.type] || FileText;
+  const [isEditingNotes, setIsEditingNotes] = useState(false);
+  const [editedNotes, setEditedNotes] = useState(resource.notes || '');
   
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -61,6 +67,18 @@ export default function ResourceCard({ resource, onStatusChange }: ResourceCardP
       case 'practice': return 'bg-orange-500/20 text-orange-400 border-orange-500/30';
       default: return 'bg-gray-500/20 text-gray-400 border-gray-500/30';
     }
+  };
+
+  const handleSaveNotes = () => {
+    if (onNotesChange) {
+      onNotesChange(resource._id!, editedNotes);
+    }
+    setIsEditingNotes(false);
+  };
+
+  const handleCancelEdit = () => {
+    setEditedNotes(resource.notes || '');
+    setIsEditingNotes(false);
   };
   
   return (
@@ -162,17 +180,60 @@ export default function ResourceCard({ resource, onStatusChange }: ResourceCardP
             </div>
           )}
 
-          {resource.notes && (
-            <div className="text-xs text-gray-300 bg-gradient-to-r from-white/5 to-white/10 border border-white/10 p-2 rounded-lg leading-relaxed">
-              <div className="flex items-center gap-1 mb-1">
+          <div className="text-xs text-gray-300 bg-gradient-to-r from-white/5 to-white/10 border border-white/10 p-2 rounded-lg leading-relaxed">
+            <div className="flex items-center justify-between mb-1">
+              <div className="flex items-center gap-1">
                 <div className="w-1.5 h-1.5 bg-orange-400 rounded-full"></div>
                 <span className="text-xs font-medium text-orange-400 uppercase tracking-wide">Notes</span>
               </div>
-              <div className="line-clamp-2">
-                {resource.notes}
-              </div>
+              {onNotesChange && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setIsEditingNotes(!isEditingNotes)}
+                  className="h-5 w-5 p-0 hover:bg-white/10"
+                >
+                  <Edit2 className="h-3 w-3 text-orange-400" />
+                </Button>
+              )}
             </div>
-          )}
+            
+            {isEditingNotes ? (
+              <div className="space-y-2">
+                <Textarea
+                  value={editedNotes}
+                  onChange={(e) => setEditedNotes(e.target.value)}
+                  placeholder="Add your notes here..."
+                  className="min-h-[60px] text-xs bg-black/40 border-white/20 text-white placeholder:text-gray-400 resize-none"
+                />
+                <div className="flex gap-1">
+                  <Button
+                    size="sm"
+                    onClick={handleSaveNotes}
+                    className="h-6 px-2 text-xs bg-orange-500 hover:bg-orange-600"
+                  >
+                    <Save className="h-3 w-3 mr-1" />
+                    Save
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleCancelEdit}
+                    className="h-6 px-2 text-xs border-white/20 text-white hover:bg-white/10"
+                  >
+                    <X className="h-3 w-3 mr-1" />
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="line-clamp-2 min-h-[20px]">
+                {resource.notes || (
+                  <span className="text-gray-500 italic">No notes added yet. Click edit to add notes.</span>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </CardContent>
     </Card>

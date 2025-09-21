@@ -116,6 +116,21 @@ export default function TopicPage() {
     }
   };
 
+  const handleUpdateResourceNotes = async (resourceId: string, newNotes: string) => {
+    try {
+      // This would require a separate API endpoint for updating individual resources
+      // For now, we'll just update the local state
+      if (topic) {
+        const updatedResources = topic.resources.map(resource =>
+          resource._id === resourceId ? { ...resource, notes: newNotes } : resource
+        );
+        setTopic({ ...topic, resources: updatedResources });
+      }
+    } catch (error) {
+      console.error('Error updating resource notes:', error);
+    }
+  };
+
   const refreshTopic = () => {
     fetchTopic();
   };
@@ -371,6 +386,7 @@ export default function TopicPage() {
                      key={resource._id} 
                      resource={resource} 
                      onStatusChange={handleUpdateResourceStatus}
+                     onNotesChange={handleUpdateResourceNotes}
                    />
                  ))}
                </div>
