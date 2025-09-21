@@ -694,7 +694,7 @@ export default function TopicPage() {
               </Card>
              ) : (
                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                 {topic.resources.map((resource) => (
+                 {topic.resources && topic.resources.map((resource) => (
                    <ResourceCard 
                      key={resource._id} 
                      resource={resource} 
