@@ -187,18 +187,26 @@ export default function KanbanPage() {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-4">
               <Link href="/">
-                <Button variant="ghost" size="sm">
-                  <ArrowLeft className="h-4 w-4 mr-2" />
+                <Button variant="ghost" size="sm" className="gap-2">
+                  <ArrowLeft className="h-4 w-4" />
                   Back to Dashboard
                 </Button>
               </Link>
               <div>
-                <h1 className="text-4xl font-bold text-foreground">
-                  Study Task Board
+                <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+                  Your Progress Hub 🎯
                 </h1>
-                <p className="text-muted-foreground mt-2">
-                  Organize your study tasks with drag-and-drop Kanban board
+                <p className="text-muted-foreground mt-2 text-lg">
+                  Transform your goals into achievements, one task at a time! ✨
                 </p>
+                <div className="mt-4 flex items-center gap-4 text-sm">
+                  <div className="flex items-center gap-2 px-3 py-1 bg-purple-500/20 text-purple-400 rounded-full">
+                    🔥 {tasks.filter(t => t.column === 'completed').length} completed today
+                  </div>
+                  <div className="flex items-center gap-2 px-3 py-1 bg-amber-500/20 text-amber-400 rounded-full">
+                    ⚡ {tasks.filter(t => t.column === 'in-progress').length} in progress
+                  </div>
+                </div>
               </div>
             </div>
             <div className="flex items-center gap-2">

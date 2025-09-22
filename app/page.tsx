@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -13,6 +13,8 @@ import { StudyTopic } from '@/lib/types';
 import TopicCardSkeleton from '@/components/TopicCardSkeleton';
 import TopicCard from '@/components/TopicCard';
 import { ThemeToggle } from '@/components/theme-toggle';
+import MotivationalQuote from '@/components/MotivationalQuote';
+import AchievementBadges from '@/components/AchievementBadges';
 
 
 const colorOptions = [
@@ -26,7 +28,6 @@ const colorOptions = [
 ];
 
 export default function Home() {
-  const router = useRouter();
   const [topics, setTopics] = useState<StudyTopic[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -260,12 +261,21 @@ export default function Home() {
           <div className="mb-8">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-4xl font-bold text-foreground mb-2">
-                  Study Dashboard
+                <h1 className="text-4xl font-bold bg-gradient-to-r from-orange-500 via-pink-500 to-purple-500 bg-clip-text text-transparent mb-2">
+                  Your Study Journey ✨
                 </h1>
-                <p className="text-muted-foreground">
-                  Organize your interview prep and career growth resources in one place
+                <p className="text-muted-foreground text-lg">
+                  Every step forward is progress. You've got this! 🚀
                 </p>
+                <div className="mt-4 flex items-center gap-4 text-sm">
+                  <div className="flex items-center gap-2 px-3 py-1 bg-green-500/20 text-green-400 rounded-full">
+                    <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+                    Keep going strong!
+                  </div>
+                  <div className="flex items-center gap-2 px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full">
+                    📚 {topics.length} topics to master
+                  </div>
+                </div>
               </div>
                 <div className="flex items-center gap-2">
                   <ThemeToggle />
@@ -275,24 +285,25 @@ export default function Home() {
                       <span className="text-sm">{error}</span>
                     </div>
                   )}
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => router.push('/kanban')}
-                    className="gap-2"
-                  >
-                    <Kanban className="h-4 w-4" />
-                    Task Board
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => router.push('/calendar')}
-                    className="gap-2"
-                  >
-                    <Calendar className="h-4 w-4" />
-                    Calendar
-                  </Button>
+                  <Link href="/kanban">
+                    <Button
+                      size="sm"
+                      className="gap-2 bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                    >
+                      <Kanban className="h-4 w-4" />
+                      Task Board
+                    </Button>
+                  </Link>
+                  <Link href="/calendar">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="gap-2 border-orange-500/30 hover:bg-orange-500/10 hover:border-orange-500/50 transition-all duration-300"
+                    >
+                      <Calendar className="h-4 w-4" />
+                      Calendar
+                    </Button>
+                  </Link>
                   <Button
                     variant="outline"
                     size="sm"
@@ -305,6 +316,19 @@ export default function Home() {
                   </Button>
                 </div>
             </div>
+        </div>
+
+        {/* Motivational Quote Section */}
+        <div className="mb-8">
+          <MotivationalQuote />
+        </div>
+
+        {/* Achievement Badges Section */}
+        <div className="mb-8">
+          <AchievementBadges 
+            totalTopics={topics.length} 
+            totalResources={topics.reduce((acc, topic) => acc + topic.resources.length, 0)}
+          />
         </div>
 
         <div className="space-y-8">
@@ -336,7 +360,7 @@ export default function Home() {
                     onTopicDelete={handleDeleteTopic}
                   />
                 ))}
-              </div>
+        </div>
             </section>
 
             {/* Career Growth Section */}

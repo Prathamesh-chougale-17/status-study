@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -290,10 +291,12 @@ export default function SubtopicPage() {
       <div className="min-h-screen w-full bg-background flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-foreground mb-4">Subtopic not found</h1>
-          <Button onClick={() => router.push(`/topic/${params.id}`)}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Topic
-          </Button>
+          <Link href={`/topic/${params.id}`}>
+            <Button className="gap-2">
+              <ArrowLeft className="h-4 w-4" />
+              Back to Topic
+            </Button>
+          </Link>
         </div>
       </div>
     );
@@ -328,13 +331,12 @@ export default function SubtopicPage() {
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
-            <Button
-              variant="ghost"
-              onClick={() => router.push(`/topic/${params.id}`)}
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Topic
-            </Button>
+            <Link href={`/topic/${params.id}`}>
+              <Button variant="ghost" className="gap-2">
+                <ArrowLeft className="h-4 w-4" />
+                Back to Topic
+              </Button>
+            </Link>
             <div className="flex items-center gap-2">
               <ThemeToggle />
               {isEditing ? (

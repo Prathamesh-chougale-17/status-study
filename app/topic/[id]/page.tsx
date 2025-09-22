@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -383,10 +384,12 @@ export default function TopicPage() {
           <h1 className="text-2xl font-bold text-foreground mb-4">
             Topic not found
           </h1>
-          <Button onClick={() => router.push('/')}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Dashboard
-          </Button>
+          <Link href="/">
+            <Button className="gap-2">
+              <ArrowLeft className="h-4 w-4" />
+              Back to Dashboard
+            </Button>
+          </Link>
         </div>
       </div>
     );
@@ -421,13 +424,12 @@ export default function TopicPage() {
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
-            <Button
-              variant="ghost"
-              onClick={() => router.push('/')}
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Dashboard
-            </Button>
+            <Link href="/">
+              <Button variant="ghost" className="gap-2">
+                <ArrowLeft className="h-4 w-4" />
+                Back to Dashboard
+              </Button>
+            </Link>
             <div className="flex items-center gap-2">
               <ThemeToggle />
               <Button

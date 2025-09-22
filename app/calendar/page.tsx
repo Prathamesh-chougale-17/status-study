@@ -167,8 +167,8 @@ export default function CalendarPage() {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-4">
               <Link href="/">
-                <Button variant="ghost" size="sm">
-                  <ArrowLeft className="h-4 w-4 mr-2" />
+                <Button variant="ghost" size="sm" className="gap-2">
+                  <ArrowLeft className="h-4 w-4" />
                   Back to Dashboard
                 </Button>
               </Link>

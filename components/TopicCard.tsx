@@ -87,7 +87,7 @@ export default function TopicCard({ topic, onTopicUpdate, onTopicDelete }: Topic
   
   return (
     <>
-      <Card className="h-full bg-card/50 backdrop-blur-sm border border-border hover:border-orange-500/30 hover:shadow-2xl hover:shadow-orange-500/10 transition-all duration-300 group">
+      <Card className="h-full bg-gradient-to-br from-card/50 to-card/30 backdrop-blur-sm border border-border hover:border-orange-500/50 hover:shadow-2xl hover:shadow-orange-500/20 transition-all duration-500 group transform hover:scale-[1.02] hover:-translate-y-1">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <div className={`p-3 rounded-xl ${topic.color} text-white shadow-lg group-hover:scale-110 transition-transform duration-300`}>
