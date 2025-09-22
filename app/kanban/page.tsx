@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -8,8 +8,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Plus, ArrowLeft } from 'lucide-react';
+import { Plus, ArrowLeft, RefreshCw, Calendar, Clock } from 'lucide-react';
 import { ThemeToggle } from '@/components/theme-toggle';
+import { toast } from 'sonner';
 import {
   KanbanProvider,
   KanbanBoard,
@@ -19,17 +20,11 @@ import {
   type DragEndEvent,
 } from '@/components/ui/kibo-ui/kanban';
 import Link from 'next/link';
+import { StudyTask } from '@/lib/types';
 
-// Define the structure for our study tasks
-interface StudyTask {
-  id: string;
-  name: string;
-  description: string;
-  column: string;
-  priority: 'low' | 'medium' | 'high';
-  category: 'interview-prep' | 'career-growth';
-  tags: string[];
-  createdAt: Date;
+// Define the structure for Kanban items (extends StudyTask)
+interface KanbanTask extends StudyTask {
+  id: string; // For Kanban compatibility
   [key: string]: unknown; // Add index signature to match KanbanItemProps
 }
 
@@ -48,95 +43,189 @@ const columns: KanbanColumn[] = [
   { id: 'completed', name: 'Completed', color: 'bg-green-500' },
 ];
 
-// Initial sample tasks
-const initialTasks: StudyTask[] = [
-  {
-    id: '1',
-    name: 'Study React Hooks',
-    description: 'Learn useState, useEffect, and custom hooks',
-    column: 'todo',
-    priority: 'high',
-    category: 'interview-prep',
-    tags: ['react', 'javascript'],
-    createdAt: new Date(),
-  },
-  {
-    id: '2',
-    name: 'Practice LeetCode Problems',
-    description: 'Solve 5 medium difficulty problems',
-    column: 'in-progress',
-    priority: 'high',
-    category: 'interview-prep',
-    tags: ['algorithms', 'data-structures'],
-    createdAt: new Date(),
-  },
-  {
-    id: '3',
-    name: 'System Design Study',
-    description: 'Review scalability patterns and distributed systems',
-    column: 'review',
-    priority: 'medium',
-    category: 'interview-prep',
-    tags: ['system-design', 'architecture'],
-    createdAt: new Date(),
-  },
-  {
-    id: '4',
-    name: 'Update Resume',
-    description: 'Add recent projects and skills',
-    column: 'completed',
-    priority: 'medium',
-    category: 'career-growth',
-    tags: ['resume', 'career'],
-    createdAt: new Date(),
-  },
-];
+// Interfaces for suggestions
+interface TaskSuggestions {
+  topics: Array<{
+    _id: string;
+    title: string;
+    category: 'interview-prep' | 'career-growth';
+    icon: string;
+    color: string;
+  }>;
+  resources: Array<{
+    _id: string;
+    title: string;
+    type: string;
+    status: string;
+    priority: 'low' | 'medium' | 'high';
+    topicId: string;
+    topicTitle: string;
+  }>;
+  subtopics: Array<{
+    _id: string;
+    title: string;
+    topicId: string;
+    topicTitle: string;
+  }>;
+}
 
 export default function KanbanPage() {
-  const [tasks, setTasks] = useState<StudyTask[]>(initialTasks);
+  const [tasks, setTasks] = useState<KanbanTask[]>([]);
+  const [loading, setLoading] = useState(true);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [suggestions, setSuggestions] = useState<TaskSuggestions>({
+    topics: [],
+    resources: [],
+    subtopics: []
+  });
   const [newTask, setNewTask] = useState({
     name: '',
     description: '',
     priority: 'medium' as 'low' | 'medium' | 'high',
     category: 'interview-prep' as 'interview-prep' | 'career-growth',
     tags: '',
-    column: 'todo',
+    column: 'todo' as 'todo' | 'in-progress' | 'review' | 'completed',
+    topicId: 'none',
+    resourceId: 'none',
+    subtopicId: 'none',
+    dueDate: '',
+    estimatedHours: '',
   });
 
-  const handleDragEnd = (event: DragEndEvent) => {
-    // The drag end logic is handled by the KanbanProvider
+  useEffect(() => {
+    fetchTasks();
+    fetchSuggestions();
+  }, []);
+
+  const fetchTasks = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/tasks');
+      if (response.ok) {
+        const data = await response.json();
+        // Convert to KanbanTask format
+        const kanbanTasks: KanbanTask[] = data.map((task: StudyTask) => ({
+          ...task,
+          id: task._id || task.name, // Ensure id field for Kanban
+        }));
+        setTasks(kanbanTasks);
+      } else {
+        toast.error('Failed to fetch tasks');
+      }
+    } catch (error) {
+      console.error('Error fetching tasks:', error);
+      toast.error('Failed to fetch tasks');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchSuggestions = async () => {
+    try {
+      const response = await fetch('/api/tasks/suggestions');
+      if (response.ok) {
+        const data = await response.json();
+        setSuggestions(data);
+      }
+    } catch (error) {
+      console.error('Error fetching suggestions:', error);
+    }
+  };
+
+  const handleDragEnd = async (event: DragEndEvent) => {
     console.log('Drag ended:', event);
+    // The drag end logic is handled by the KanbanProvider
+    // We can add additional logic here if needed
   };
 
-  const handleDataChange = (newData: StudyTask[]) => {
+  const handleDataChange = async (newData: KanbanTask[]) => {
+    // Update local state immediately for smooth UI
     setTasks(newData);
+    
+    // Find tasks that changed columns and update them in the database
+    const currentTasks = tasks;
+    const changedTasks = newData.filter(newTask => {
+      const oldTask = currentTasks.find(t => t.id === newTask.id);
+      return oldTask && oldTask.column !== newTask.column;
+    });
+
+    // Update each changed task in the database
+    for (const task of changedTasks) {
+      try {
+        await fetch(`/api/tasks/${task._id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            column: task.column,
+          }),
+        });
+      } catch (error) {
+        console.error('Error updating task:', error);
+        toast.error(`Failed to update ${task.name}`);
+      }
+    }
   };
 
-  const handleAddTask = () => {
-    if (!newTask.name.trim()) return;
+  const handleAddTask = async () => {
+    if (!newTask.name.trim()) {
+      toast.error('Please enter a task name');
+      return;
+    }
 
-    const task: StudyTask = {
-      id: Date.now().toString(),
+    const task: Partial<StudyTask> = {
       name: newTask.name,
       description: newTask.description,
       column: newTask.column,
       priority: newTask.priority,
       category: newTask.category,
       tags: newTask.tags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0),
-      createdAt: new Date(),
+      topicId: newTask.topicId && newTask.topicId !== 'none' ? newTask.topicId : undefined,
+      resourceId: newTask.resourceId && newTask.resourceId !== 'none' ? newTask.resourceId : undefined,
+      subtopicId: newTask.subtopicId && newTask.subtopicId !== 'none' ? newTask.subtopicId : undefined,
+      dueDate: newTask.dueDate ? new Date(newTask.dueDate) : undefined,
+      estimatedHours: newTask.estimatedHours ? parseInt(newTask.estimatedHours) : undefined,
     };
 
-    setTasks([...tasks, task]);
-    setNewTask({
-      name: '',
-      description: '',
-      priority: 'medium',
-      category: 'interview-prep',
-      tags: '',
-      column: 'todo',
-    });
-    setIsAddDialogOpen(false);
+    try {
+      const response = await fetch('/api/tasks', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(task),
+      });
+
+      if (response.ok) {
+        const newTaskData = await response.json();
+        const kanbanTask: KanbanTask = {
+          ...newTaskData,
+          id: newTaskData._id,
+        };
+        setTasks([...tasks, kanbanTask]);
+        setNewTask({
+          name: '',
+          description: '',
+          priority: 'medium',
+          category: 'interview-prep',
+          tags: '',
+          column: 'todo',
+          topicId: 'none',
+          resourceId: 'none',
+          subtopicId: 'none',
+          dueDate: '',
+          estimatedHours: '',
+        });
+        setIsAddDialogOpen(false);
+        toast.success('Task created successfully');
+      } else {
+        toast.error('Failed to create task');
+      }
+    } catch (error) {
+      console.error('Error creating task:', error);
+      toast.error('Failed to create task');
+    }
   };
 
   const getPriorityColor = (priority: string) => {
@@ -211,6 +300,16 @@ export default function KanbanPage() {
             </div>
             <div className="flex items-center gap-2">
               <ThemeToggle />
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={fetchTasks}
+                disabled={loading}
+                className="gap-2"
+              >
+                <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+                Refresh
+              </Button>
               <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
                 <DialogTrigger asChild>
                   <Button className="gap-2">
@@ -277,6 +376,102 @@ export default function KanbanPage() {
                         </Select>
                       </div>
                     </div>
+
+                    {/* Related Topic/Resource/Subtopic Selection */}
+                    <div className="space-y-4">
+                      <div>
+                        <Label className="text-sm text-muted-foreground mb-2 block">Related Topic (Optional)</Label>
+                        <Select
+                          value={newTask.topicId}
+                          onValueChange={(value) => setNewTask({...newTask, topicId: value})}
+                        >
+                          <SelectTrigger className="bg-background border-border text-foreground">
+                            <SelectValue placeholder="Select a topic" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-background border-border">
+                            <SelectItem value="none">No topic</SelectItem>
+                            {suggestions.topics.map((topic) => (
+                              <SelectItem key={topic._id} value={topic._id}>
+                                {topic.title}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {newTask.topicId && newTask.topicId !== 'none' && (
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <Label className="text-sm text-muted-foreground mb-2 block">Related Resource</Label>
+                            <Select
+                              value={newTask.resourceId}
+                              onValueChange={(value) => setNewTask({...newTask, resourceId: value})}
+                            >
+                              <SelectTrigger className="bg-background border-border text-foreground">
+                                <SelectValue placeholder="Select resource" />
+                              </SelectTrigger>
+                              <SelectContent className="bg-background border-border">
+                                <SelectItem value="none">No resource</SelectItem>
+                                {suggestions.resources
+                                  .filter(resource => resource.topicId === newTask.topicId)
+                                  .map((resource) => (
+                                    <SelectItem key={resource._id} value={resource._id}>
+                                      {resource.title}
+                                    </SelectItem>
+                                  ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+
+                          <div>
+                            <Label className="text-sm text-muted-foreground mb-2 block">Related Subtopic</Label>
+                            <Select
+                              value={newTask.subtopicId}
+                              onValueChange={(value) => setNewTask({...newTask, subtopicId: value})}
+                            >
+                              <SelectTrigger className="bg-background border-border text-foreground">
+                                <SelectValue placeholder="Select subtopic" />
+                              </SelectTrigger>
+                              <SelectContent className="bg-background border-border">
+                                <SelectItem value="none">No subtopic</SelectItem>
+                                {suggestions.subtopics
+                                  .filter(subtopic => subtopic.topicId === newTask.topicId)
+                                  .map((subtopic) => (
+                                    <SelectItem key={subtopic._id} value={subtopic._id}>
+                                      {subtopic.title}
+                                    </SelectItem>
+                                  ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label className="text-sm text-muted-foreground mb-2 block">Due Date (Optional)</Label>
+                        <Input
+                          type="date"
+                          value={newTask.dueDate}
+                          onChange={(e) => setNewTask({...newTask, dueDate: e.target.value})}
+                          className="bg-background border-border text-foreground"
+                        />
+                      </div>
+                      
+                      <div>
+                        <Label className="text-sm text-muted-foreground mb-2 block">Estimated Hours</Label>
+                        <Input
+                          type="number"
+                          min="0"
+                          max="100"
+                          value={newTask.estimatedHours}
+                          onChange={(e) => setNewTask({...newTask, estimatedHours: e.target.value})}
+                          className="bg-background border-border text-foreground"
+                          placeholder="e.g. 2"
+                        />
+                      </div>
+                    </div>
                     
                     <div>
                       <Label className="text-sm text-muted-foreground mb-2 block">Tags (comma separated)</Label>
@@ -312,13 +507,21 @@ export default function KanbanPage() {
 
         {/* Kanban Board */}
         <div className="h-[calc(100vh-200px)]">
-          <KanbanProvider
-            columns={columns}
-            data={tasks}
-            onDataChange={handleDataChange}
-            onDragEnd={handleDragEnd}
-            className="h-full"
-          >
+          {loading ? (
+            <div className="flex items-center justify-center h-full">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500 mx-auto mb-4"></div>
+                <p className="text-muted-foreground">Loading tasks...</p>
+              </div>
+            </div>
+          ) : (
+            <KanbanProvider
+              columns={columns}
+              data={tasks}
+              onDataChange={handleDataChange}
+              onDragEnd={handleDragEnd}
+              className="h-full"
+            >
             {(column) => (
               <KanbanBoard key={column.id} id={column.id} className="h-full">
                 <KanbanHeader className="flex items-center gap-2 p-3 border-b">
@@ -344,6 +547,25 @@ export default function KanbanPage() {
                             {task.description}
                           </p>
                         )}
+                        
+                        {/* Due Date and Estimated Hours */}
+                        {((task as KanbanTask).dueDate || (task as KanbanTask).estimatedHours) && (
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                            {(task as KanbanTask).dueDate && (
+                              <div className="flex items-center gap-1">
+                                <Calendar className="h-3 w-3" />
+                                {new Date((task as KanbanTask).dueDate as Date).toLocaleDateString()}
+                              </div>
+                            )}
+                            {(task as KanbanTask).estimatedHours && (
+                              <div className="flex items-center gap-1">
+                                <Clock className="h-3 w-3" />
+                                {(task as KanbanTask).estimatedHours}h
+                              </div>
+                            )}
+                          </div>
+                        )}
+
                         <div className="flex flex-wrap gap-1">
                           <Badge
                             variant="outline"
@@ -379,6 +601,7 @@ export default function KanbanPage() {
               </KanbanBoard>
             )}
           </KanbanProvider>
+          )}
         </div>
       </div>
     </div>

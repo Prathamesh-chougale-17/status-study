@@ -45,6 +45,24 @@ export interface SubtopicLink {
   createdAt: Date;
 }
 
+export interface StudyTask {
+  _id?: string;
+  name: string;
+  description: string;
+  column: 'todo' | 'in-progress' | 'review' | 'completed';
+  priority: 'low' | 'medium' | 'high';
+  category: 'interview-prep' | 'career-growth';
+  tags: string[];
+  topicId?: string; // Reference to related topic
+  resourceId?: string; // Reference to related resource
+  subtopicId?: string; // Reference to related subtopic
+  dueDate?: Date;
+  estimatedHours?: number;
+  actualHours?: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export interface Progress {
   _id?: string;
   year: number;
