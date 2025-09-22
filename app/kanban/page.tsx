@@ -92,12 +92,10 @@ export default function KanbanPage() {
   const fetchTasks = async () => {
     try {
       setLoading(true);
-      console.log('=== FETCHING KANBAN TASKS ===');
       
       const response = await fetch('/api/kanban');
       if (response.ok) {
         const data = await response.json();
-        console.log('Fetched tasks from Kanban API:', data.length, 'tasks');
         
         // Convert to KanbanTask format and fix any invalid column values
         const kanbanTasks: KanbanTask[] = data.map((task: StudyTask) => {
@@ -106,13 +104,12 @@ export default function KanbanPage() {
           const fixedColumn = validColumns.includes(task.column) ? task.column : 'todo';
           
           if (task.column !== fixedColumn) {
-            console.log(`Fixed invalid column "${task.column}" to "${fixedColumn}" for task ${task.name}`);
             // Update in database
             fetch(`/api/tasks/${task._id}`, {
               method: 'PUT',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ column: fixedColumn }),
-            }).catch(err => console.error('Error fixing column:', err));
+            });
           }
           
           return {
@@ -124,11 +121,9 @@ export default function KanbanPage() {
         
         setTasks(kanbanTasks);
       } else {
-        console.error('Failed to fetch tasks:', response.status);
         toast.error('Failed to fetch tasks');
       }
     } catch (error) {
-      console.error('Error fetching tasks:', error);
       toast.error('Failed to fetch tasks');
     } finally {
       setLoading(false);
@@ -137,22 +132,13 @@ export default function KanbanPage() {
 
   const fetchSuggestions = async () => {
     try {
-      console.log('=== FETCHING KANBAN SUGGESTIONS ===');
-      
       const response = await fetch('/api/kanban/suggestions');
       if (response.ok) {
         const data = await response.json();
-        console.log('Fetched suggestions:', { 
-          topics: data.topics?.length || 0, 
-          resources: data.resources?.length || 0, 
-          subtopics: data.subtopics?.length || 0 
-        });
         setSuggestions(data);
-      } else {
-        console.error('Failed to fetch suggestions:', response.status);
       }
     } catch (error) {
-      console.error('Error fetching suggestions:', error);
+      // Silently fail for suggestions
     }
   };
 
@@ -202,7 +188,6 @@ export default function KanbanPage() {
       estimatedHours: newTask.estimatedHours,
     };
 
-    console.log('=== CREATING KANBAN TASK ===', task);
 
     try {
       const response = await fetch('/api/kanban', {
@@ -239,7 +224,6 @@ export default function KanbanPage() {
         toast.error('Failed to create task');
       }
     } catch (error) {
-      console.error('Error creating task:', error);
       toast.error('Failed to create task');
     }
   };
