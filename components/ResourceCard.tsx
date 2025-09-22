@@ -37,21 +37,15 @@ const priorityColors = {
 interface ResourceCardProps {
   resource: StudyResource;
   onStatusChange?: (resourceId: string, newStatus: string) => void;
-  onNotesChange?: (resourceId: string, newNotes: string) => void;
   onResourceUpdate?: (resourceId: string, updatedResource: Partial<StudyResource>) => void;
   onResourceDelete?: (resourceId: string) => void;
 }
 
-export default function ResourceCard({ resource, onStatusChange, onNotesChange, onResourceUpdate, onResourceDelete }: ResourceCardProps) {
+export default function ResourceCard({ resource, onStatusChange, onResourceUpdate, onResourceDelete }: ResourceCardProps) {
   const TypeIcon = resourceTypeIcons[resource.type] || FileText;
-  
-  // Debug logging
-  console.log('ResourceCard - resource._id:', resource._id);
-  console.log('ResourceCard - resource object keys:', Object.keys(resource));
-  
+
   // Temporary fix: Generate ID if missing
   const resourceId = resource._id || `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-  console.log('ResourceCard - using resourceId:', resourceId);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editedResource, setEditedResource] = useState({
     title: resource.title,
@@ -61,7 +55,6 @@ export default function ResourceCard({ resource, onStatusChange, onNotesChange, 
     status: resource.status,
     priority: resource.priority,
     tags: resource.tags.join(', '),
-    notes: resource.notes || '',
   });
   
   const getStatusColor = (status: string) => {
@@ -111,7 +104,6 @@ export default function ResourceCard({ resource, onStatusChange, onNotesChange, 
       status: resource.status,
       priority: resource.priority,
       tags: resource.tags.join(', '),
-      notes: resource.notes || '',
     });
     setIsDialogOpen(false);
   };
@@ -125,7 +117,6 @@ export default function ResourceCard({ resource, onStatusChange, onNotesChange, 
       status: resource.status,
       priority: resource.priority,
       tags: resource.tags.join(', '),
-      notes: resource.notes || '',
     });
     setIsDialogOpen(true);
   };
@@ -285,17 +276,6 @@ export default function ResourceCard({ resource, onStatusChange, onNotesChange, 
               </div>
             )}
 
-            <div className="text-xs text-muted-foreground bg-gradient-to-r from-muted/20 to-muted/30 border border-border p-2 rounded-lg leading-relaxed">
-              <div className="flex items-center gap-1 mb-1">
-                <div className="w-1.5 h-1.5 bg-orange-400 rounded-full"></div>
-                <span className="text-xs font-medium text-orange-400 uppercase tracking-wide">Notes</span>
-              </div>
-              <div className="line-clamp-2 min-h-[20px]">
-                {resource.notes || (
-                  <span className="text-gray-500 italic">No notes added yet.</span>
-                )}
-              </div>
-            </div>
           </div>
         </CardContent>
       </Card>
@@ -381,16 +361,6 @@ export default function ResourceCard({ resource, onStatusChange, onNotesChange, 
                 onChange={(e) => setEditedResource({...editedResource, tags: e.target.value})}
                 className="bg-background border-border text-foreground"
                 placeholder="tag1, tag2, tag3"
-              />
-            </div>
-            
-            <div>
-              <Label className="text-sm text-muted-foreground mb-2 block">Notes</Label>
-              <Textarea
-                value={editedResource.notes}
-                onChange={(e) => setEditedResource({...editedResource, notes: e.target.value})}
-                className="bg-background border-border text-foreground resize-none min-h-[100px]"
-                placeholder="Add your notes here..."
               />
             </div>
             

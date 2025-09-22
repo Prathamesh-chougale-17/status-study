@@ -3,8 +3,7 @@ import client from '@/lib/mongodb';
 
 export async function GET() {
   try {
-    console.log('=== KANBAN SUGGESTIONS API ===');
-    
+
     await client.connect();
     const db = client.db('study-dashboard');
 
@@ -41,8 +40,6 @@ export async function GET() {
         }
       }
     ]).toArray();
-
-    console.log(`Found: ${topics.length} topics, ${resources.length} resources, ${subtopics.length} subtopics`);
 
     return NextResponse.json({ topics, resources, subtopics });
   } catch (error) {

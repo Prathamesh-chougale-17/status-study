@@ -22,7 +22,6 @@ export const GET = withAuth(async (
       let needsUpdate = false;
       topic.resources = topic.resources.map((resource: any) => {
         if (!resource._id) {
-          console.log('Adding ID to resource:', resource.title);
           resource._id = new ObjectId().toString();
           needsUpdate = true;
         }
@@ -31,7 +30,6 @@ export const GET = withAuth(async (
       
       // Update the topic in database if any resources were missing IDs
       if (needsUpdate) {
-        console.log('Updating topic with resource IDs');
         await db.collection('topics').updateOne(
           { _id: new ObjectId(id) },
           { $set: { resources: topic.resources } }

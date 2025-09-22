@@ -718,7 +718,6 @@ export default function TopicPage() {
                      key={resource._id} 
                      resource={resource} 
                      onStatusChange={handleUpdateResourceStatus}
-                     onNotesChange={handleUpdateResourceNotes}
                      onResourceUpdate={handleUpdateResource}
                      onResourceDelete={handleDeleteResource}
                    />

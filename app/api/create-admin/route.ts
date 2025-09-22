@@ -6,7 +6,6 @@ export async function POST(request: NextRequest) {
     const adminEmail = process.env.ADMIN_EMAIL || "admin@yourdomain.com";
     const adminPassword = process.env.ADMIN_PASSWORD || "admin123";
 
-    console.log('Creating admin user with email:', adminEmail);
 
     const result = await auth.api.signUpEmail({
       body: {
@@ -16,7 +15,6 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    console.log('Sign up result:', result);
 
     // Better Auth returns { user: ..., token: ... } on success
     if (result && result.user) {

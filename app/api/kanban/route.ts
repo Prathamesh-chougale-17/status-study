@@ -7,14 +7,10 @@ import { withAuth } from '@/lib/auth-helpers';
 // GET - Fetch all tasks for Kanban board
 export const GET = withAuth(async (request: NextRequest) => {
   try {
-    console.log('=== KANBAN API: Fetching tasks ===');
     
     await client.connect();
     const db = client.db('study-dashboard');
-    const tasks = await db.collection('tasks').find({}).toArray();
-    
-    console.log(`Found ${tasks.length} tasks`);
-    
+    const tasks = await db.collection('tasks').find({}).toArray();    
     return NextResponse.json(tasks);
   } catch (error) {
     console.error('Error fetching kanban tasks:', error);
@@ -25,10 +21,8 @@ export const GET = withAuth(async (request: NextRequest) => {
 // POST - Create new task for Kanban board
 export const POST = withAuth(async (request: NextRequest) => {
   try {
-    console.log('=== KANBAN API: Creating task ===');
     
     const body = await request.json();
-    console.log('Task data:', body);
     
     const task = {
       name: body.name,
@@ -49,10 +43,7 @@ export const POST = withAuth(async (request: NextRequest) => {
 
     await client.connect();
     const db = client.db('study-dashboard');
-    const result = await db.collection('tasks').insertOne(task as any);
-
-    console.log('Task created with ID:', result.insertedId);
-    
+    const result = await db.collection('tasks').insertOne(task as any);    
     return NextResponse.json({ ...task, _id: result.insertedId });
   } catch (error) {
     console.error('Error creating kanban task:', error);
@@ -63,7 +54,6 @@ export const POST = withAuth(async (request: NextRequest) => {
 // PUT - Update task column (for drag and drop)
 export const PUT = withAuth(async (request: NextRequest) => {
   try {
-    console.log('=== KANBAN API: Bulk update ===');
     
     const body = await request.json();
     const { tasks } = body;
@@ -90,7 +80,6 @@ export const PUT = withAuth(async (request: NextRequest) => {
 
     const result = await db.collection('tasks').bulkWrite(bulkOps);
     
-    console.log('Bulk update result:', result);
     
     return NextResponse.json({ 
       message: 'Tasks updated successfully',

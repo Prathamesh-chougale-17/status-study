@@ -26,6 +26,11 @@ const colorOptions = [
   { value: 'bg-red-500', label: 'Red' },
   { value: 'bg-yellow-500', label: 'Yellow' },
   { value: 'bg-gray-500', label: 'Gray' },
+  { value: 'bg-pink-500', label: 'Pink' },
+  { value: 'bg-indigo-500', label: 'Indigo' },
+  { value: 'bg-teal-500', label: 'Teal' },
+  { value: 'bg-cyan-500', label: 'Cyan' },
+  { value: 'bg-emerald-500', label: 'Emerald' },
 ];
 
 interface DashboardClientProps {
