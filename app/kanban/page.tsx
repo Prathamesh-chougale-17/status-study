@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -8,17 +8,22 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Plus, RefreshCw, Calendar, Clock, ArrowLeft } from 'lucide-react';
 import { StudyTask } from '@/lib/types';
 import { toast } from 'sonner';
 import Link from 'next/link';
 import MotivationalQuote from '@/components/MotivationalQuote';
-import AchievementBadges from '@/components/AchievementBadges';
+import {
+  KanbanBoard,
+  KanbanCard,
+  KanbanCards,
+  KanbanHeader,
+  KanbanProvider,
+} from '@/components/ui/kibo-ui/kanban';
 
 type KanbanTask = StudyTask & {
   id: string;
-};
+} & Record<string, unknown>;
 
 type TaskSuggestions = {
   topics: Array<{
@@ -46,17 +51,17 @@ type TaskSuggestions = {
 };
 
 const columns = [
-  { id: 'todo', name: 'To Do', color: 'bg-gray-500' },
-  { id: 'in-progress', name: 'In Progress', color: 'bg-blue-500' },
-  { id: 'review', name: 'Review', color: 'bg-yellow-500' },
-  { id: 'completed', name: 'Completed', color: 'bg-green-500' },
+  { id: 'todo', name: 'To Do', color: '#6B7280' },
+  { id: 'in-progress', name: 'In Progress', color: '#F59E0B' },
+  { id: 'review', name: 'Review', color: '#8B5CF6' },
+  { id: 'completed', name: 'Completed', color: '#10B981' },
 ];
 
 export default function KanbanPage() {
   const [tasks, setTasks] = useState<KanbanTask[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [draggedTask, setDraggedTask] = useState<KanbanTask | null>(null);
+  const [updatingTaskId, setUpdatingTaskId] = useState<string | null>(null);
   const [suggestions, setSuggestions] = useState<TaskSuggestions>({
     topics: [],
     resources: [],
@@ -80,6 +85,7 @@ export default function KanbanPage() {
     fetchTasks();
     fetchSuggestions();
   }, []);
+
 
   const fetchTasks = async () => {
     try {
@@ -148,67 +154,23 @@ export default function KanbanPage() {
     }
   };
 
-  const handleDragStart = (e: React.DragEvent, task: KanbanTask) => {
-    console.log('Drag started:', task.name);
-    setDraggedTask(task);
-    e.dataTransfer.effectAllowed = 'move';
-  };
-
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-  };
-
-  const handleDrop = async (e: React.DragEvent, targetColumn: string) => {
-    e.preventDefault();
+  const handleDataChange = async (newTasks: any[]) => {
+    // Update UI immediately
+    setTasks(newTasks as KanbanTask[]);
     
-    if (!draggedTask || draggedTask.column === targetColumn) {
-      setDraggedTask(null);
-      return;
-    }
-
-    console.log(`Moving ${draggedTask.name} from ${draggedTask.column} to ${targetColumn}`);
-
-    // Update local state immediately
-    const updatedTasks = tasks.map(task => 
-      task.id === draggedTask.id 
-        ? { ...task, column: targetColumn as any }
-        : task
-    );
-    setTasks(updatedTasks);
-
-    // Update in database
+    // Update database on every drag - no checks, just update
     try {
-      const response = await fetch(`/api/tasks/${draggedTask._id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          column: targetColumn,
-        }),
-      });
-
-      const responseData = await response.json();
-      console.log('API Response:', response.status, responseData);
-
-      if (response.ok) {
-        console.log('SUCCESS: Task updated in database');
-        toast.success(`Moved ${draggedTask.name} to ${targetColumn.replace('-', ' ')}`);
-      } else {
-        console.error('API ERROR:', responseData);
-        toast.error(`Failed to update ${draggedTask.name}`);
-        // Revert on failure
-        setTasks(tasks);
+      for (const task of newTasks) {
+        await fetch(`/api/tasks/${task._id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ column: task.column }),
+        });
       }
+      toast.success('Tasks saved!');
     } catch (error) {
-      console.error('NETWORK ERROR:', error);
-      toast.error(`Network error updating ${draggedTask.name}`);
-      // Revert on failure
-      setTasks(tasks);
+      toast.error('Failed to save');
     }
-
-    setDraggedTask(null);
   };
 
   const handleAddTask = async () => {
@@ -248,7 +210,7 @@ export default function KanbanPage() {
           ...newTaskData,
           id: newTaskData._id,
         };
-        setTasks([...tasks, kanbanTask]);
+        setTasks(prevTasks => [...prevTasks, kanbanTask]);
         setNewTask({
           name: '',
           description: '',
@@ -273,62 +235,6 @@ export default function KanbanPage() {
     }
   };
 
-  const TaskCard = ({ task }: { task: KanbanTask }) => (
-    <Card
-      draggable
-      onDragStart={(e) => handleDragStart(e, task)}
-      className="mb-3 cursor-move hover:shadow-md transition-shadow bg-card border-border"
-    >
-      <CardHeader className="pb-2">
-        <h3 className="font-medium text-sm text-foreground">{task.name}</h3>
-        {task.description && (
-          <p className="text-xs text-muted-foreground line-clamp-2">
-            {task.description}
-          </p>
-        )}
-      </CardHeader>
-      <CardContent className="pt-0">
-        <div className="flex flex-wrap gap-1 mb-2">
-          <Badge variant="outline" className="text-xs">
-            {task.priority}
-          </Badge>
-          <Badge variant="secondary" className="text-xs">
-            {task.category}
-          </Badge>
-        </div>
-        {task.tags && task.tags.length > 0 && (
-          <div className="flex flex-wrap gap-1 mb-2">
-            {task.tags.slice(0, 3).map((tag, index) => (
-              <Badge key={index} variant="outline" className="text-xs">
-                #{tag}
-              </Badge>
-            ))}
-            {task.tags.length > 3 && (
-              <Badge variant="outline" className="text-xs">
-                +{task.tags.length - 3}
-              </Badge>
-            )}
-          </div>
-        )}
-        {(task.dueDate || task.estimatedHours) && (
-          <div className="flex gap-2 text-xs text-muted-foreground">
-            {task.dueDate && (
-              <div className="flex items-center gap-1">
-                <Calendar className="h-3 w-3" />
-                {new Date(task.dueDate).toLocaleDateString()}
-              </div>
-            )}
-            {task.estimatedHours && (
-              <div className="flex items-center gap-1">
-                <Clock className="h-3 w-3" />
-                {task.estimatedHours}h
-              </div>
-            )}
-          </div>
-        )}
-      </CardContent>
-    </Card>
-  );
 
   if (loading) {
     return (
@@ -375,11 +281,6 @@ export default function KanbanPage() {
         {/* Motivational Quote */}
         <div className="mb-8">
           <MotivationalQuote />
-        </div>
-
-        {/* Progress Badges */}
-        <div className="mb-8">
-          <AchievementBadges totalTopics={suggestions.topics.length} totalResources={suggestions.resources.length} />
         </div>
 
         {/* Add Task Button */}
@@ -470,42 +371,103 @@ export default function KanbanPage() {
           </Dialog>
         </div>
 
-        {/* Kanban Board */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {columns.map((column) => (
-            <div
-              key={column.id}
-              className="bg-card/50 backdrop-blur-sm border border-border rounded-lg p-4"
-              onDragOver={handleDragOver}
-              onDrop={(e) => handleDrop(e, column.id)}
-            >
-              {/* Column Header */}
-              <div className="flex items-center gap-2 mb-4">
-                <div className={`w-3 h-3 rounded-full ${column.color}`} />
-                <span className="font-semibold text-foreground">{column.name}</span>
-                <Badge variant="secondary" className="ml-auto">
-                  {tasks.filter(task => task.column === column.id).length}
-                </Badge>
-              </div>
-
-              {/* Tasks */}
-              <div className="space-y-3">
-                {tasks
-                  .filter(task => task.column === column.id)
-                  .map(task => (
-                    <TaskCard key={task.id} task={task} />
-                  ))}
-              </div>
-
-              {/* Drop Zone */}
-              {tasks.filter(task => task.column === column.id).length === 0 && (
-                <div className="border-2 border-dashed border-muted-foreground/20 rounded-lg p-8 text-center text-muted-foreground">
-                  Drop tasks here
+        {/* Kibo UI Kanban Board */}
+        <KanbanProvider
+          columns={columns}
+          data={tasks}
+          onDataChange={handleDataChange}
+        >
+          {(column) => (
+            <KanbanBoard id={column.id} key={column.id}>
+              <KanbanHeader>
+                <div className="flex items-center gap-2">
+                  <div
+                    className="h-3 w-3 rounded-full"
+                    style={{ backgroundColor: column.color }}
+                  />
+                  <span className="font-semibold text-foreground">{column.name}</span>
+                  <Badge variant="secondary" className="ml-auto">
+                    {tasks.filter(task => task.column === column.id).length}
+                  </Badge>
                 </div>
-              )}
-            </div>
-          ))}
-        </div>
+              </KanbanHeader>
+              <KanbanCards id={column.id}>
+                {(taskItem: any) => {
+                  const task = taskItem as KanbanTask;
+                  return (
+                  <KanbanCard
+                    column={column.id}
+                    id={task.id}
+                    key={task.id}
+                    name={task.name}
+                    className={`${
+                      updatingTaskId === task.id 
+                        ? 'animate-pulse ring-2 ring-green-500/50 shadow-lg shadow-green-500/30' 
+                        : ''
+                    }`}
+                  >
+                    <div className="space-y-3">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex flex-col gap-1 flex-1">
+                          <p className="m-0 font-medium text-sm text-foreground">
+                            {task.name}
+                          </p>
+                          {task.description && (
+                            <p className="m-0 text-xs text-muted-foreground line-clamp-2">
+                              {task.description}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                      
+                      <div className="flex flex-wrap gap-1">
+                        <Badge variant="outline" className="text-xs">
+                          {task.priority}
+                        </Badge>
+                        <Badge variant="secondary" className="text-xs">
+                          {task.category}
+                        </Badge>
+                      </div>
+                      
+                      {task.tags && task.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-1">
+                          {task.tags.slice(0, 3).map((tag, index) => (
+                            <Badge key={index} variant="outline" className="text-xs">
+                              #{tag}
+                            </Badge>
+                          ))}
+                          {task.tags.length > 3 && (
+                            <Badge variant="outline" className="text-xs">
+                              +{task.tags.length - 3}
+                            </Badge>
+                          )}
+                        </div>
+                      )}
+                      
+                      {(task.dueDate || task.estimatedHours) && (
+                        <div className="flex gap-2 text-xs text-muted-foreground">
+                          {task.dueDate && (
+                            <div className="flex items-center gap-1">
+                              <Calendar className="h-3 w-3" />
+                              {new Date(task.dueDate).toLocaleDateString()}
+                            </div>
+                          )}
+                          {task.estimatedHours && (
+                            <div className="flex items-center gap-1">
+                              <Clock className="h-3 w-3" />
+                              {task.estimatedHours}h
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </KanbanCard>
+                  );
+                }}
+              </KanbanCards>
+            </KanbanBoard>
+          )}
+        </KanbanProvider>
       </div>
     </div>
   );
