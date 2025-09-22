@@ -2,9 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import client from '@/lib/mongodb';
 import { StudyTask } from '@/lib/types';
 import { ObjectId } from 'mongodb';
+import { withAuth } from '@/lib/auth-helpers';
 
 // GET - Fetch all tasks for Kanban board
-export async function GET() {
+export const GET = withAuth(async (request: NextRequest) => {
   try {
     console.log('=== KANBAN API: Fetching tasks ===');
     
@@ -19,10 +20,10 @@ export async function GET() {
     console.error('Error fetching kanban tasks:', error);
     return NextResponse.json({ error: 'Failed to fetch tasks' }, { status: 500 });
   }
-}
+});
 
 // POST - Create new task for Kanban board
-export async function POST(request: NextRequest) {
+export const POST = withAuth(async (request: NextRequest) => {
   try {
     console.log('=== KANBAN API: Creating task ===');
     
@@ -57,10 +58,10 @@ export async function POST(request: NextRequest) {
     console.error('Error creating kanban task:', error);
     return NextResponse.json({ error: 'Failed to create task' }, { status: 500 });
   }
-}
+});
 
 // PUT - Update task column (for drag and drop)
-export async function PUT(request: NextRequest) {
+export const PUT = withAuth(async (request: NextRequest) => {
   try {
     console.log('=== KANBAN API: Bulk update ===');
     
@@ -99,4 +100,4 @@ export async function PUT(request: NextRequest) {
     console.error('Error bulk updating kanban tasks:', error);
     return NextResponse.json({ error: 'Failed to update tasks' }, { status: 500 });
   }
-}
+});

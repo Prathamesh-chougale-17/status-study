@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import client from '@/lib/mongodb';
 import { StudyResource } from '@/lib/types';
 import { ObjectId } from 'mongodb';
+import { withAuth } from '@/lib/auth-helpers';
 
-export async function POST(request: NextRequest) {
+export const POST = withAuth(async (request: NextRequest) => {
   try {
     const body = await request.json();
     const { topicId, ...resourceData } = body;
@@ -36,4 +37,4 @@ export async function POST(request: NextRequest) {
     console.error('Error creating resource:', error);
     return NextResponse.json({ error: 'Failed to create resource' }, { status: 500 });
   }
-}
+});

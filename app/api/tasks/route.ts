@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import client from '@/lib/mongodb';
 import { StudyTask } from '@/lib/types';
+import { withAuth } from '@/lib/auth-helpers';
 
-export async function GET() {
+export const GET = withAuth(async (request: NextRequest) => {
   try {
     await client.connect();
     const db = client.db('study-dashboard');
@@ -13,9 +14,9 @@ export async function GET() {
     console.error('Error fetching tasks:', error);
     return NextResponse.json({ error: 'Failed to fetch tasks' }, { status: 500 });
   }
-}
+});
 
-export async function POST(request: NextRequest) {
+export const POST = withAuth(async (request: NextRequest) => {
   try {
     const body = await request.json();
     const task: StudyTask = {
@@ -33,4 +34,4 @@ export async function POST(request: NextRequest) {
     console.error('Error creating task:', error);
     return NextResponse.json({ error: 'Failed to create task' }, { status: 500 });
   }
-}
+});
