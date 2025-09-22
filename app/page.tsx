@@ -161,7 +161,7 @@ export default function Home() {
   const careerGrowthTopics = topics.filter(topic => topic.category === 'career-growth');
 
   if (loading) {
-    return (
+  return (
       <div className="min-h-screen w-full bg-background relative text-foreground">
         {/* Diagonal Grid with Orange Glow - Dark Mode */}
         <div
