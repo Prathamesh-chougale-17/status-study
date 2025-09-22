@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import client from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
+import { withAuth } from '@/lib/auth-helpers';
 
-export async function PUT(
+export const PUT = withAuth(async (
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) {
+) => {
   try {
     const { id: resourceId } = await params;
     
@@ -63,12 +64,12 @@ export async function PUT(
     console.error('Error updating resource:', error);
     return NextResponse.json({ error: 'Failed to update resource' }, { status: 500 });
   }
-}
+});
 
-export async function DELETE(
+export const DELETE = withAuth(async (
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) {
+) => {
   try {
     const { id: resourceId } = await params;
     
@@ -107,4 +108,4 @@ export async function DELETE(
     console.error('Error deleting resource:', error);
     return NextResponse.json({ error: 'Failed to delete resource' }, { status: 500 });
   }
-}
+});

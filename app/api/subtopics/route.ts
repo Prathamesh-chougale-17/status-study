@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import  client  from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
 import { Subtopic } from '@/lib/types';
+import { withAuth } from '@/lib/auth-helpers';
 
-export async function POST(request: NextRequest) {
+export const POST = withAuth(async (request: NextRequest) => {
   try {
     await client.connect();
     const db = client.db('study-dashboard');
@@ -38,9 +39,9 @@ export async function POST(request: NextRequest) {
     console.error('Error creating subtopic:', error);
     return NextResponse.json({ error: 'Failed to create subtopic' }, { status: 500 });
   }
-}
+});
 
-export async function GET(request: NextRequest) {
+export const GET = withAuth(async (request: NextRequest) => {
   try {
     await client.connect();
     const db = client.db('study-dashboard');
@@ -62,4 +63,4 @@ export async function GET(request: NextRequest) {
     console.error('Error fetching subtopics:', error);
     return NextResponse.json({ error: 'Failed to fetch subtopics' }, { status: 500 });
   }
-}
+});

@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import client from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
+import { withAuth } from '@/lib/auth-helpers';
 
-export async function GET(
+export const GET = withAuth(async (
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) {
+) => {
   try {
     const { id } = await params;
     
@@ -22,12 +23,12 @@ export async function GET(
     console.error('Error fetching task:', error);
     return NextResponse.json({ error: 'Failed to fetch task' }, { status: 500 });
   }
-}
+});
 
-export async function PUT(
+export const PUT = withAuth(async (
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) {
+) =>{
   try {
     const { id } = await params;
     const body = await request.json();
@@ -69,12 +70,12 @@ export async function PUT(
       details: error instanceof Error ? error.message : 'Unknown error' 
     }, { status: 500 });
   }
-}
+});
 
-export async function DELETE(
+export const DELETE = withAuth(async (
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) {
+) => {
   try {
     const { id } = await params;
     
@@ -92,4 +93,4 @@ export async function DELETE(
     console.error('Error deleting task:', error);
     return NextResponse.json({ error: 'Failed to delete task' }, { status: 500 });
   }
-}
+});

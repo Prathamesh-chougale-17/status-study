@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import client from '@/lib/mongodb';
 import { StudyTopic } from '@/lib/types';
+import { withAuth } from '@/lib/auth-helpers';
 
-export async function GET() {
+export const GET = withAuth(async (request: NextRequest) => {
   try {
     await client.connect();
     const db = client.db('study-dashboard');
@@ -13,9 +14,9 @@ export async function GET() {
     console.error('Error fetching topics:', error);
     return NextResponse.json({ error: 'Failed to fetch topics' }, { status: 500 });
   }
-}
+});
 
-export async function POST(request: NextRequest) {
+export const POST = withAuth(async (request: NextRequest) => {
   try {
     const body = await request.json();
     const topic: StudyTopic = {
@@ -36,4 +37,4 @@ export async function POST(request: NextRequest) {
     console.error('Error creating topic:', error);
     return NextResponse.json({ error: 'Failed to create topic' }, { status: 500 });
   }
-}
+});

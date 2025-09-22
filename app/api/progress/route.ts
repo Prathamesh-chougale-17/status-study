@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import client from '@/lib/mongodb';
 import { Progress } from '@/lib/types';
+import { withAuth } from '@/lib/auth-helpers';
 
-export async function GET() {
+export const GET = withAuth(async (request: NextRequest) => {
   try {
     await client.connect();
     const db = client.db('study-dashboard');
@@ -37,9 +38,9 @@ export async function GET() {
     console.error('Error fetching progress:', error);
     return NextResponse.json({ error: 'Failed to fetch progress' }, { status: 500 });
   }
-}
+});
 
-export async function PUT(request: NextRequest) {
+export const PUT = withAuth(async (request: NextRequest) => {
   try {
     const body = await request.json();
     
@@ -62,4 +63,4 @@ export async function PUT(request: NextRequest) {
     console.error('Error updating progress:', error);
     return NextResponse.json({ error: 'Failed to update progress' }, { status: 500 });
   }
-}
+});

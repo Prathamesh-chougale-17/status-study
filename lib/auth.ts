@@ -46,7 +46,7 @@ export const auth = betterAuth({
   callbacks: {
     user: {
       create: {
-        before: async (user) => {
+        before: async (user: { email: string; }) => {
           // Only allow your admin email
           const adminEmail = process.env.ADMIN_EMAIL || "admin@yourdomain.com";
           if (user.email !== adminEmail) {
@@ -59,7 +59,7 @@ export const auth = betterAuth({
         }
       },
       signIn: {
-        before: async (user) => {
+        before: async (user: { email: string; }) => {
           // Only allow your admin email
           const adminEmail = process.env.ADMIN_EMAIL || "admin@yourdomain.com";
           if (user.email !== adminEmail) {

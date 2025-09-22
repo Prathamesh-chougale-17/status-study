@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import client from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
+import { withAuth } from '@/lib/auth-helpers';
 
-export async function GET(
+export const GET = withAuth(async (
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -43,9 +44,9 @@ export async function GET(
     console.error('Error fetching topic:', error);
     return NextResponse.json({ error: 'Failed to fetch topic' }, { status: 500 });
   }
-}
+});
 
-export async function PUT(
+export const PUT = withAuth(async (
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -73,12 +74,12 @@ export async function PUT(
     console.error('Error updating topic:', error);
     return NextResponse.json({ error: 'Failed to update topic' }, { status: 500 });
   }
-}
+});
 
-export async function DELETE(
+export const DELETE = withAuth(async (
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) {
+) => {
   try {
     const { id } = await params;
     await client.connect();
@@ -94,4 +95,4 @@ export async function DELETE(
     console.error('Error deleting topic:', error);
     return NextResponse.json({ error: 'Failed to delete topic' }, { status: 500 });
   }
-}
+});
