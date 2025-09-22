@@ -24,22 +24,27 @@ export default function SignInPage() {
     setError('');
 
     try {
-      const { data, error } = await signIn.email({
+      const result = await signIn.email({
         email,
         password,
       });
 
-      if (error) {
-        setError(error.message || 'Sign in failed');
-        toast.error('Sign in failed');
-      } else {
+      // Better Auth client returns { data: {...}, error: null } on success
+      if (result.data && !result.error) {
         toast.success('Welcome back!');
         router.push('/');
         router.refresh();
+      } else if (result.error) {
+        setError(result.error.message || 'Sign in failed');
+        toast.error('Sign in failed');
+      } else {
+        setError('Sign in failed - invalid response');
+        toast.error('Sign in failed');
       }
     } catch (err) {
-      setError('An unexpected error occurred');
-      toast.error('An unexpected error occurred');
+      const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
+      setError(errorMessage);
+      toast.error('Sign in failed');
     } finally {
       setIsLoading(false);
     }

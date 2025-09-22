@@ -18,22 +18,33 @@ export async function POST(request: NextRequest) {
 
     console.log('Sign up result:', result);
 
-    if (result.error) {
-      console.error('Error creating admin user:', result.error);
-      return NextResponse.json({ error: result.error.message }, { status: 400 });
+    // Better Auth returns { user: ..., token: ... } on success
+    if (result && result.user) {
+      return NextResponse.json({ 
+        success: true, 
+        message: 'Admin user created successfully',
+        email: adminEmail,
+        user: result.user
+      });
+    } else {
+      return NextResponse.json({ 
+        error: 'Failed to create admin user - no user returned' 
+      }, { status: 400 });
     }
-
-    return NextResponse.json({ 
-      success: true, 
-      message: 'Admin user created successfully',
-      email: adminEmail,
-      user: result.data
-    });
   } catch (error) {
     console.error('Failed to create admin user:', error);
+    
+    // Better Auth throws errors for validation issues
+    if (error instanceof Error) {
+      return NextResponse.json({ 
+        error: 'Failed to create admin user', 
+        details: error.message
+      }, { status: 400 });
+    }
+    
     return NextResponse.json({ 
       error: 'Failed to create admin user', 
-      details: error instanceof Error ? error.message : 'Unknown error'
+      details: 'Unknown error'
     }, { status: 500 });
   }
 }

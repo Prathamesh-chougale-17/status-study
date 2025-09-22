@@ -6,7 +6,7 @@ import { withAuth } from '@/lib/auth-helpers';
 export const GET = withAuth(async (
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) {
+) => {
   try {
     const { id } = await params;
     await client.connect();
@@ -49,7 +49,7 @@ export const GET = withAuth(async (
 export const PUT = withAuth(async (
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) {
+) => {
   try {
     const { id } = await params;
     const body = await request.json();
@@ -79,7 +79,7 @@ export const PUT = withAuth(async (
 export const DELETE = withAuth(async (
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
-) => {
+  ) => {
   try {
     const { id } = await params;
     await client.connect();
