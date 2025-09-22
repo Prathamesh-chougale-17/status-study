@@ -161,16 +161,16 @@ export default function Home() {
   const careerGrowthTopics = topics.filter(topic => topic.category === 'career-growth');
 
   if (loading) {
-  return (
+    return (
       <div className="min-h-screen w-full bg-background relative text-foreground">
         {/* Diagonal Grid with Orange Glow - Dark Mode */}
         <div
           className="absolute inset-0 z-0 pointer-events-none dark:block hidden"
           style={{
             backgroundImage: `
-       repeating-linear-gradient(45deg, rgba(255, 140, 0, 0.12) 0, rgba(255, 140, 0, 0.12) 1px, transparent 1px, transparent 22px),
-            repeating-linear-gradient(-45deg, rgba(255, 69, 0, 0.08) 0, rgba(255, 69, 0, 0.08) 1px, transparent 1px, transparent 22px)
-            `,
+         repeating-linear-gradient(45deg, rgba(255, 140, 0, 0.12) 0, rgba(255, 140, 0, 0.12) 1px, transparent 1px, transparent 22px),
+              repeating-linear-gradient(-45deg, rgba(255, 69, 0, 0.08) 0, rgba(255, 69, 0, 0.08) 1px, transparent 1px, transparent 22px)
+              `,
             backgroundSize: "44px 44px",
           }}
         />
@@ -179,9 +179,9 @@ export default function Home() {
           className="absolute inset-0 z-0 pointer-events-none dark:hidden block"
           style={{
             backgroundImage: `
-       repeating-linear-gradient(45deg, rgba(255, 140, 0, 0.06) 0, rgba(255, 140, 0, 0.06) 1px, transparent 1px, transparent 22px),
-            repeating-linear-gradient(-45deg, rgba(255, 69, 0, 0.04) 0, rgba(255, 69, 0, 0.04) 1px, transparent 1px, transparent 22px)
-            `,
+         repeating-linear-gradient(45deg, rgba(255, 140, 0, 0.06) 0, rgba(255, 140, 0, 0.06) 1px, transparent 1px, transparent 22px),
+              repeating-linear-gradient(-45deg, rgba(255, 69, 0, 0.04) 0, rgba(255, 69, 0, 0.04) 1px, transparent 1px, transparent 22px)
+              `,
             backgroundSize: "44px 44px",
           }}
         />
@@ -190,17 +190,34 @@ export default function Home() {
           <div className="mb-8">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-4xl font-bold text-foreground mb-2">
-                  Study Dashboard
-                </h1>
-                <p className="text-muted-foreground">
-                  Organize your interview prep and career growth resources in one place
-                </p>
+                <div className="h-10 w-80 bg-gradient-to-r from-orange-500/20 via-pink-500/20 to-purple-500/20 rounded animate-pulse mb-2"></div>
+                <div className="h-6 w-96 bg-muted/50 rounded animate-pulse"></div>
+                <div className="mt-4 flex items-center gap-4">
+                  <div className="h-8 w-32 bg-green-500/20 rounded-full animate-pulse"></div>
+                  <div className="h-8 w-40 bg-blue-500/20 rounded-full animate-pulse"></div>
+                </div>
               </div>
               <div className="flex items-center gap-2">
                 <ThemeToggle />
+                <div className="h-9 w-28 bg-gradient-to-r from-orange-500/20 to-pink-500/20 rounded animate-pulse"></div>
+                <div className="h-9 w-24 bg-muted/30 rounded animate-pulse"></div>
                 <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-orange-500"></div>
-                <span className="text-sm text-muted-foreground">Loading...</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Motivational Quote Skeleton */}
+          <div className="mb-8">
+            <div className="bg-gradient-to-br from-purple-500/10 via-pink-500/10 to-orange-500/10 border border-purple-500/20 backdrop-blur-sm rounded-lg p-6">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <div className="space-y-3">
+                    <div className="h-6 w-full bg-muted/40 rounded animate-pulse"></div>
+                    <div className="h-6 w-4/5 bg-muted/40 rounded animate-pulse"></div>
+                    <div className="h-4 w-32 bg-muted/30 rounded animate-pulse mt-4"></div>
+                  </div>
+                </div>
+                <div className="h-8 w-8 bg-muted/30 rounded animate-pulse ml-4"></div>
               </div>
             </div>
           </div>
@@ -212,11 +229,11 @@ export default function Home() {
                 <h2 className="text-2xl font-semibold text-foreground">
                   Interview Prep
                 </h2>
-                <div className="h-9 w-24 bg-muted rounded animate-pulse"></div>
+                <div className="h-9 w-28 bg-muted/40 rounded animate-pulse"></div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                 {Array.from({ length: 4 }).map((_, index) => (
-                  <TopicCardSkeleton key={index} />
+                  <TopicCardSkeleton key={`interview-${index}`} />
                 ))}
               </div>
             </section>
@@ -227,14 +244,38 @@ export default function Home() {
                 <h2 className="text-2xl font-semibold text-foreground">
                   Job & SDE Career Growth
                 </h2>
-                <div className="h-9 w-24 bg-muted rounded animate-pulse"></div>
+                <div className="h-9 w-28 bg-muted/40 rounded animate-pulse"></div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                 {Array.from({ length: 2 }).map((_, index) => (
-                  <TopicCardSkeleton key={index} />
+                  <TopicCardSkeleton key={`career-${index}`} />
                 ))}
               </div>
             </section>
+          </div>
+
+          {/* Achievement Badges Skeleton - At Bottom */}
+          <div className="mt-12 mb-8">
+            <div className="bg-gradient-to-br from-indigo-500/10 via-purple-500/10 to-pink-500/10 border border-indigo-500/20 backdrop-blur-sm rounded-lg p-6">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="h-5 w-5 bg-amber-400/40 rounded animate-pulse"></div>
+                <div className="h-6 w-40 bg-muted/40 rounded animate-pulse"></div>
+              </div>
+              <div className="space-y-4">
+                <div>
+                  <div className="h-4 w-32 bg-muted/30 rounded animate-pulse mb-3"></div>
+                  <div className="flex flex-wrap gap-2">
+                    {Array.from({ length: 4 }).map((_, index) => (
+                      <div key={index} className="h-8 w-24 bg-gradient-to-r from-green-400/20 to-blue-400/20 rounded-full animate-pulse"></div>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <div className="h-4 w-24 bg-muted/30 rounded animate-pulse mb-3"></div>
+                  <div className="h-16 w-full bg-muted/20 border border-dashed border-muted/40 rounded-lg animate-pulse"></div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -332,14 +373,6 @@ export default function Home() {
           <MotivationalQuote />
         </div>
 
-        {/* Achievement Badges Section */}
-        <div className="mb-8">
-          <AchievementBadges 
-            totalTopics={topics.length} 
-            totalResources={topics.reduce((acc, topic) => acc + topic.resources.length, 0)}
-          />
-        </div>
-
         <div className="space-y-8">
             {/* Interview Prep Section */}
             <section>
@@ -402,6 +435,14 @@ export default function Home() {
                 ))}
               </div>
             </section>
+        </div>
+
+        {/* Achievement Badges Section - Moved to Bottom */}
+        <div className="mt-12 mb-8">
+          <AchievementBadges 
+            totalTopics={topics.length} 
+            totalResources={topics.reduce((acc, topic) => acc + topic.resources.length, 0)}
+          />
         </div>
       </div>
 
