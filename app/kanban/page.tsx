@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Plus, RefreshCw, Calendar, Clock, ArrowLeft } from 'lucide-react';
 import { StudyTask } from '@/lib/types';
 import { toast } from 'sonner';
@@ -248,11 +249,71 @@ export default function KanbanPage() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted">
         <div className="container mx-auto px-4 py-8">
-          <div className="flex items-center justify-center h-64">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500 mx-auto mb-4"></div>
-              <p className="text-muted-foreground">Loading tasks...</p>
+          {/* Header Skeleton */}
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <Skeleton className="h-10 w-80 mb-2" />
+              <Skeleton className="h-5 w-96" />
             </div>
+            <div className="flex items-center gap-4">
+              <Skeleton className="h-9 w-20" />
+              <Skeleton className="h-9 w-32" />
+            </div>
+          </div>
+
+          {/* Motivational Quote Skeleton */}
+          <div className="mb-8 bg-gradient-to-r from-card/50 to-card/30 backdrop-blur-sm border border-border rounded-lg p-6">
+            <Skeleton className="h-6 w-3/4 mb-3" />
+            <Skeleton className="h-4 w-1/2" />
+          </div>
+
+          {/* Add Task Button Skeleton */}
+          <div className="mb-6">
+            <Skeleton className="h-10 w-36" />
+          </div>
+
+          {/* Kanban Board Skeleton */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[1, 2, 3, 4].map((column) => (
+              <div key={column} className="bg-gradient-to-br from-card/60 to-card/40 backdrop-blur-md border border-border rounded-lg p-4">
+                {/* Column Header Skeleton */}
+                <div className="flex items-center gap-2 mb-4">
+                  <Skeleton className="w-3 h-3 rounded-full" />
+                  <Skeleton className="h-5 w-20" />
+                  <Skeleton className="h-6 w-8 rounded-full ml-auto" />
+                </div>
+
+                {/* Task Cards Skeleton */}
+                <div className="space-y-3">
+                  {[1, 2].map((task) => (
+                    <div key={task} className="bg-gradient-to-br from-background/80 to-background/60 backdrop-blur-sm border border-border rounded-lg p-4">
+                      <div className="space-y-3">
+                        {/* Task Title */}
+                        <Skeleton className="h-4 w-3/4" />
+                        
+                        {/* Task Description */}
+                        <div className="space-y-1">
+                          <Skeleton className="h-3 w-full" />
+                          <Skeleton className="h-3 w-2/3" />
+                        </div>
+                        
+                        {/* Badges */}
+                        <div className="flex flex-wrap gap-1">
+                          <Skeleton className="h-5 w-12 rounded-full" />
+                          <Skeleton className="h-5 w-16 rounded-full" />
+                        </div>
+                        
+                        {/* Tags */}
+                        <div className="flex flex-wrap gap-1">
+                          <Skeleton className="h-5 w-10 rounded-full" />
+                          <Skeleton className="h-5 w-14 rounded-full" />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
