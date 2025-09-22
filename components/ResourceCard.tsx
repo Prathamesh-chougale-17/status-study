@@ -139,8 +139,8 @@ export default function ResourceCard({ resource, onStatusChange, onNotesChange, 
   return (
     <>
       <Card className="group bg-gradient-to-br from-card/60 to-card/40 backdrop-blur-md border border-border hover:border-orange-500/50 hover:shadow-2xl hover:shadow-orange-500/30 transition-all duration-500 hover:scale-[1.02] hover:-translate-y-1 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 via-transparent to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-        <CardHeader className="pb-3">
+        <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 via-transparent to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+        <CardHeader className="pb-3 relative z-10">
           <div className="flex items-start justify-between">
             <div className="flex items-start gap-3 flex-1">
               <div className={`p-2.5 rounded-lg border ${getTypeColor(resource.type)} group-hover:scale-105 transition-transform duration-300 shadow-md`}>
@@ -211,7 +211,7 @@ export default function ResourceCard({ resource, onStatusChange, onNotesChange, 
             </div>
           </div>
         </CardHeader>
-        <CardContent className="pt-0">
+        <CardContent className="pt-0 relative z-10">
           <div className="space-y-3">
             {resource.url && (
               <div className="flex items-center gap-2 p-2 bg-muted/20 rounded-lg border border-border hover:bg-muted/30 transition-colors">

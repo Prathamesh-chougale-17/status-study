@@ -243,7 +243,14 @@ export default function TopicPage() {
       });
 
       if (response.ok) {
-        await fetchTopic(); // Refresh the topic data
+        const newSubtopicData = await response.json();
+        // Update local state instead of refetching
+        if (topic) {
+          setTopic({
+            ...topic,
+            subtopics: [...(topic.subtopics || []), newSubtopicData]
+          });
+        }
         setIsAddSubtopicDialogOpen(false);
         setNewSubtopic({ title: '', description: '' });
         toast.success('Subtopic created successfully');
@@ -267,7 +274,13 @@ export default function TopicPage() {
       });
 
       if (response.ok) {
-        await fetchTopic(); // Refresh the topic data
+        // Update local state instead of refetching
+        if (topic) {
+          const updatedSubtopics = topic.subtopics?.map(subtopic => 
+            subtopic._id === subtopicId ? { ...subtopic, ...updatedSubtopic } : subtopic
+          ) || [];
+          setTopic({ ...topic, subtopics: updatedSubtopics });
+        }
         toast.success('Subtopic updated successfully');
       } else {
         toast.error('Failed to update subtopic');
@@ -285,7 +298,11 @@ export default function TopicPage() {
       });
 
       if (response.ok) {
-        await fetchTopic(); // Refresh the topic data
+        // Update local state instead of refetching
+        if (topic) {
+          const updatedSubtopics = topic.subtopics?.filter(subtopic => subtopic._id !== subtopicId) || [];
+          setTopic({ ...topic, subtopics: updatedSubtopics });
+        }
         toast.success('Subtopic deleted successfully');
       } else {
         toast.error('Failed to delete subtopic');

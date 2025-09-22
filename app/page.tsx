@@ -15,6 +15,7 @@ import TopicCard from '@/components/TopicCard';
 import { ThemeToggle } from '@/components/theme-toggle';
 import MotivationalQuote from '@/components/MotivationalQuote';
 import AchievementBadges from '@/components/AchievementBadges';
+import { toast } from 'sonner';
 
 
 const colorOptions = [
@@ -74,7 +75,7 @@ export default function Home() {
 
   const handleCreateTopic = async () => {
     if (!newTopic.title.trim()) {
-      alert('Please enter a topic title');
+      toast.error('Please enter a topic title');
       return;
     }
     
@@ -92,7 +93,8 @@ export default function Home() {
       });
 
       if (response.ok) {
-        await fetchData(); // Refresh the data
+        const newTopicData = await response.json();
+        setTopics(prev => [...prev, newTopicData]);
         setIsCreateDialogOpen(false);
         setNewTopic({
           title: '',
@@ -101,12 +103,13 @@ export default function Home() {
           color: 'bg-gray-500',
           category: 'interview-prep',
         });
+        toast.success('Topic created successfully');
       } else {
-        alert('Failed to create topic');
+        toast.error('Failed to create topic');
       }
     } catch (error) {
       console.error('Error creating topic:', error);
-      alert('Failed to create topic');
+      toast.error('Failed to create topic');
     }
   };
 
@@ -121,13 +124,17 @@ export default function Home() {
       });
 
       if (response.ok) {
-        await fetchData(); // Refresh the data
+        // Update local state instead of refetching
+        setTopics(prev => prev.map(topic => 
+          topic._id === topicId ? { ...topic, ...updatedTopic } : topic
+        ));
+        toast.success('Topic updated successfully');
       } else {
-        alert('Failed to update topic');
+        toast.error('Failed to update topic');
       }
     } catch (error) {
       console.error('Error updating topic:', error);
-      alert('Failed to update topic');
+      toast.error('Failed to update topic');
     }
   };
 
@@ -138,13 +145,15 @@ export default function Home() {
       });
 
       if (response.ok) {
-        await fetchData(); // Refresh the data
+        // Update local state instead of refetching
+        setTopics(prev => prev.filter(topic => topic._id !== topicId));
+        toast.success('Topic deleted successfully');
       } else {
-        alert('Failed to delete topic');
+        toast.error('Failed to delete topic');
       }
     } catch (error) {
       console.error('Error deleting topic:', error);
-      alert('Failed to delete topic');
+      toast.error('Failed to delete topic');
     }
   };
 

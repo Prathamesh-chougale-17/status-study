@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Plus, ArrowLeft, Calendar as CalendarIcon } from 'lucide-react';
 import { ThemeToggle } from '@/components/theme-toggle';
+import { toast } from 'sonner';
 import {
   CalendarProvider,
   CalendarBody,
@@ -86,7 +87,7 @@ export default function CalendarPage() {
 
   const handleAddEvent = () => {
     if (!newEvent.name.trim() || !newEvent.date || !newEvent.startTime || !newEvent.endTime) {
-      alert('Please fill in all required fields');
+      toast.error('Please fill in all required fields');
       return;
     }
 
@@ -120,6 +121,7 @@ export default function CalendarPage() {
       status: 'scheduled',
     });
     setIsAddDialogOpen(false);
+    toast.success('Event added successfully');
   };
 
   const getStatusColor = (statusId: string) => {

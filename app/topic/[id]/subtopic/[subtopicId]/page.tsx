@@ -14,6 +14,7 @@ import { ArrowLeft, Save, Plus, ExternalLink, Trash2, Edit2 } from 'lucide-react
 import { Subtopic, SubtopicLink } from '@/lib/types';
 import { ThemeToggle } from '@/components/theme-toggle';
 import NotesEditor from '@/components/NotesEditor';
+import { toast } from 'sonner';
 
 export default function SubtopicPage() {
   const params = useParams();
@@ -80,12 +81,13 @@ export default function SubtopicPage() {
           description: editedDescription,
         });
         setIsEditing(false);
+        toast.success('Subtopic updated successfully');
       } else {
-        alert('Failed to save changes');
+        toast.error('Failed to save changes');
       }
     } catch (error) {
       console.error('Error saving subtopic:', error);
-      alert('Failed to save changes');
+      toast.error('Failed to save changes');
     } finally {
       setSaving(false);
     }
@@ -112,12 +114,13 @@ export default function SubtopicPage() {
           notes: editedNotes,
         });
         setIsEditingNotes(false);
+        toast.success('Notes saved successfully');
       } else {
-        alert('Failed to save notes');
+        toast.error('Failed to save notes');
       }
     } catch (error) {
       console.error('Error saving notes:', error);
-      alert('Failed to save notes');
+      toast.error('Failed to save notes');
     } finally {
       setSaving(false);
     }
@@ -152,12 +155,13 @@ export default function SubtopicPage() {
         setSubtopic({ ...subtopic, links: updatedLinks });
         setNewLink({ title: '', url: '', description: '' });
         setShowAddLink(false);
+        toast.success('Link added successfully');
       } else {
-        alert('Failed to add link');
+        toast.error('Failed to add link');
       }
     } catch (error) {
       console.error('Error adding link:', error);
-      alert('Failed to add link');
+      toast.error('Failed to add link');
     }
   };
 
@@ -179,12 +183,13 @@ export default function SubtopicPage() {
 
       if (response.ok) {
         setSubtopic({ ...subtopic, links: updatedLinks });
+        toast.success('Link deleted successfully');
       } else {
-        alert('Failed to delete link');
+        toast.error('Failed to delete link');
       }
     } catch (error) {
       console.error('Error deleting link:', error);
-      alert('Failed to delete link');
+      toast.error('Failed to delete link');
     }
   };
 
@@ -195,13 +200,14 @@ export default function SubtopicPage() {
       });
 
       if (response.ok) {
+        toast.success('Subtopic deleted successfully');
         router.push(`/topic/${params.id}`);
       } else {
-        alert('Failed to delete subtopic');
+        toast.error('Failed to delete subtopic');
       }
     } catch (error) {
       console.error('Error deleting subtopic:', error);
-      alert('Failed to delete subtopic');
+      toast.error('Failed to delete subtopic');
     }
   };
 
