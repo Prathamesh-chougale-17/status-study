@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import  client  from '@/lib/mongodb';
+import client from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
 import { Subtopic } from '@/lib/types';
 

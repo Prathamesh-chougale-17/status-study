@@ -27,6 +27,6 @@
     "@aisdk": "https://registry.ai-sdk.dev/{name}.json",
     "@aitool": "https://ai-tools-registry.vercel.app/r/{name}.json",
     "@alpine": "https://alpine-registry.vercel.app/r/{name}.json",
-    "@kibo": "https://www.kibo-ui.com/r/{name}.json"
+    "@kibo-ui": "https://www.kibo-ui.com/r/{name}.json"
   }
 }

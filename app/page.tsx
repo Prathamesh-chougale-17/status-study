@@ -1,13 +1,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { Plus, RefreshCw, AlertCircle } from 'lucide-react';
+import { Plus, RefreshCw, AlertCircle, Kanban, Calendar } from 'lucide-react';
 import { StudyTopic } from '@/lib/types';
 import TopicCardSkeleton from '@/components/TopicCardSkeleton';
 import TopicCard from '@/components/TopicCard';
@@ -25,6 +26,7 @@ const colorOptions = [
 ];
 
 export default function Home() {
+  const router = useRouter();
   const [topics, setTopics] = useState<StudyTopic[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -265,25 +267,43 @@ export default function Home() {
                   Organize your interview prep and career growth resources in one place
                 </p>
               </div>
-              <div className="flex items-center gap-2">
-                <ThemeToggle />
-                {error && (
-                  <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400">
-                    <AlertCircle className="h-4 w-4" />
-                    <span className="text-sm">{error}</span>
-                  </div>
-                )}
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={refreshData}
-                  disabled={loading}
-                  className="gap-2"
-                >
-                  <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-                  Refresh
-                </Button>
-              </div>
+                <div className="flex items-center gap-2">
+                  <ThemeToggle />
+                  {error && (
+                    <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400">
+                      <AlertCircle className="h-4 w-4" />
+                      <span className="text-sm">{error}</span>
+                    </div>
+                  )}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => router.push('/kanban')}
+                    className="gap-2"
+                  >
+                    <Kanban className="h-4 w-4" />
+                    Task Board
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => router.push('/calendar')}
+                    className="gap-2"
+                  >
+                    <Calendar className="h-4 w-4" />
+                    Calendar
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={refreshData}
+                    disabled={loading}
+                    className="gap-2"
+                  >
+                    <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+                    Refresh
+                  </Button>
+                </div>
             </div>
         </div>
 
