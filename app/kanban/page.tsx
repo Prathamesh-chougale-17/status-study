@@ -62,6 +62,7 @@ export default function KanbanPage() {
   const [loading, setLoading] = useState(true);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [updatingTaskId, setUpdatingTaskId] = useState<string | null>(null);
+  const [isUpdating, setIsUpdating] = useState(false);
   const [suggestions, setSuggestions] = useState<TaskSuggestions>({
     topics: [],
     resources: [],
@@ -158,6 +159,10 @@ export default function KanbanPage() {
     // Update UI immediately
     setTasks(newTasks as KanbanTask[]);
     
+    // Prevent duplicate calls
+    if (isUpdating) return;
+    setIsUpdating(true);
+    
     // Update database on every drag - no checks, just update
     try {
       for (const task of newTasks) {
@@ -170,6 +175,9 @@ export default function KanbanPage() {
       toast.success('Tasks saved!');
     } catch (error) {
       toast.error('Failed to save');
+    } finally {
+      // Reset after a short delay
+      setTimeout(() => setIsUpdating(false), 500);
     }
   };
 
