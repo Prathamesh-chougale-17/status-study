@@ -20,6 +20,6 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     // Temporarily disable middleware - only handle auth server-side
-    // '/((?!api/auth|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!api/auth|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 };
